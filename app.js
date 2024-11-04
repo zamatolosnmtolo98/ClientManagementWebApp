@@ -1,155 +1,130 @@
-// Initial Rendering of Clients and Contacts
-document.addEventListener('DOMContentLoaded', () => {
-    renderClients();
-    renderContacts();
+// app.js
+
+// Client and Contact classes to manage the data
+class Client {
+    constructor(name) {
+        this.name = name;
+    }
+}
+
+class Contact {
+    constructor(name) {
+        this.name = name;
+    }
+}
+
+// Client Controller to handle client operations
+class ClientController {
+    constructor() {
+        this.clients = [];
+    }
+
+    addClient(name) {
+        const client = new Client(name);
+        this.clients.push(client);
+        return this.clients;
+    }
+
+    getAllClients() {
+        return this.clients;
+    }
+}
+
+// Contact Controller to handle contact operations
+class ContactController {
+    constructor() {
+        this.contacts = [];
+    }
+
+    addContact(name) {
+        const contact = new Contact(name);
+        this.contacts.push(contact);
+        return this.contacts;
+    }
+
+    getAllContacts() {
+        return this.contacts;
+    }
+
+    unlinkContact(index) {
+        if (index > -1 && index < this.contacts.length) {
+            this.contacts.splice(index, 1);
+            return this.contacts;
+        }
+        return null; // Return null if the index is out of bounds
+    }
+}
+
+// Initialize Controllers
+const clientController = new ClientController();
+const contactController = new ContactController();
+
+// DOM Elements
+const clientForm = document.getElementById('clientForm');
+const contactForm = document.getElementById('contactForm');
+const clientList = document.getElementById('clientList');
+const contactList = document.getElementById('contactList');
+
+// Update Client List
+function updateClientList() {
+    clientList.innerHTML = '';
+    const clients = clientController.getAllClients();
+    if (clients.length === 0) {
+        clientList.innerHTML = '<p>No clients found.</p>';
+    } else {
+        clients.forEach((client, index) => {
+            clientList.innerHTML += `<p>${client.name} <button onclick="unlinkClient(${index})">Remove</button></p>`;
+        });
+    }
+}
+
+// Update Contact List
+function updateContactList() {
+    contactList.innerHTML = '';
+    const contacts = contactController.getAllContacts();
+    if (contacts.length === 0) {
+        contactList.innerHTML = '<p>No contacts found.</p>';
+    } else {
+        contacts.forEach((contact, index) => {
+            contactList.innerHTML += `<p>${contact.name} <button onclick="unlinkContact(${index})">Remove</button></p>`;
+        });
+    }
+}
+
+// Handle Client Form Submission
+clientForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const clientName = document.getElementById('clientName').value;
+    if (clientName) {
+        clientController.addClient(clientName);
+        updateClientList();
+        clientForm.reset();
+    }
 });
 
-// Render Client List with Error Handling
-async function renderClients() {
-    const clientTable = document.getElementById('clientTable');
-    const clientSelector = document.getElementById('clientSelector');
-
-    try {
-        const response = await fetch('/api/clients');
-        const clients = await response.json();
-
-        // Reset table and selector content
-        clientTable.innerHTML = '';
-        clientSelector.innerHTML = '';
-
-        // Check for clients and display message if none found
-        if (clients.length === 0) {
-            clientTable.innerHTML = '<tr><td colspan="2" class="center">No clients found</td></tr>';
-        } else {
-            // Populate client table and selector dropdown
-            clientTable.innerHTML = '<tr><th>Client Name</th><th>Linked Contacts</th></tr>';
-            clients.forEach(client => {
-                const row = `<tr><td>${client.name}</td><td>${client.linkedContacts}</td></tr>`;
-                clientTable.innerHTML += row;
-
-                const option = document.createElement('option');
-                option.value = client.name;
-                option.textContent = client.name;
-                clientSelector.appendChild(option);
-            });
-        }
-    } catch (error) {
-        console.error("Error loading clients:", error);
+// Handle Contact Form Submission
+contactForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const contactName = document.getElementById('contactName').value;
+    if (contactName) {
+        contactController.addContact(contactName);
+        updateContactList();
+        contactForm.reset();
     }
+});
+
+// Unlink Client
+function unlinkClient(index) {
+    clientController.clients.splice(index, 1);
+    updateClientList();
 }
 
-// Render Contact List with Error Handling
-async function renderContacts() {
-    const contactTable = document.getElementById('contactTable');
-
-    try {
-        const response = await fetch('/api/contacts');
-        const contacts = await response.json();
-
-        // Reset table content
-        contactTable.innerHTML = '';
-
-        // Check for contacts and display message if none found
-        if (contacts.length === 0) {
-            contactTable.innerHTML = '<tr><td colspan="4" class="center">No contacts found</td></tr>';
-        } else {
-            // Populate contact table with data
-            contactTable.innerHTML = '<tr><th>Contact Name</th><th>Email</th><th>Client Name</th><th>Action</th></tr>';
-            contacts.forEach((contact, index) => {
-                const row = `<tr>
-                                <td>${contact.fullName}</td>
-                                <td>${contact.email}</td>
-                                <td>${contact.clientName}</td>
-                                <td><button onclick="unlinkContact(${index})">Unlink</button></td>
-                             </tr>`;
-                contactTable.innerHTML += row;
-            });
-        }
-    } catch (error) {
-        console.error("Error loading contacts:", error);
-    }
+// Unlink Contact
+function unlinkContact(index) {
+    contactController.unlinkContact(index);
+    updateContactList();
 }
 
-// Add New Client
-async function addClient() {
-    const name = document.getElementById('clientNameInput').value.trim();
-    if (!name) {
-        alert("Client name is required");
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/clients', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name })
-        });
-
-        if (response.ok) {
-            renderClients();
-            document.getElementById('clientNameInput').value = '';  // Clear input
-        } else {
-            const error = await response.json();
-            alert(`Error: ${error.error}`);
-        }
-    } catch (error) {
-        console.error("Error adding client:", error);
-    }
-}
-
-// Add New Contact
-async function addContact() {
-    const fullName = document.getElementById('contactNameInput').value.trim();
-    const email = document.getElementById('contactEmailInput').value.trim();
-    const clientName = document.getElementById('clientSelector').value;
-
-    if (!fullName || !email || !clientName) {
-        alert("All contact fields are required");
-        return;
-    }
-
-    try {
-        const response = await fetch('/api/contacts', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ fullName, email, clientName })
-        });
-
-        if (response.ok) {
-            renderContacts();
-            document.getElementById('contactNameInput').value = ''; // Clear inputs
-            document.getElementById('contactEmailInput').value = '';
-        } else {
-            const error = await response.json();
-            alert(`Error: ${error.error}`);
-        }
-    } catch (error) {
-        console.error("Error adding contact:", error);
-    }
-}
-
-// Unlink a Contact from Client
-async function unlinkContact(index) {
-    try {
-        const response = await fetch(`/api/contacts/${index}`, { method: 'DELETE' });
-
-        if (response.ok) {
-            renderContacts();  // Refresh contact list
-        } else {
-            alert("Error unlinking contact");
-        }
-    } catch (error) {
-        console.error("Error unlinking contact:", error);
-    }
-}
-
-// Tab Navigation
-function openTab(tabName) {
-    // Hide all tabs
-    document.querySelectorAll('.tabcontent').forEach(content => {
-        content.style.display = 'none';
-    });
-
-    // Show the selected tab
-    document.getElementById(tabName).style.display = 'block';
-}
+// Initial load
+updateClientList();
+updateContactList();
