@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"> <!-- Character encoding for the document -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Responsive design -->
-    <title>Client Management System</title> <!-- Title of the page -->
-    <link rel="stylesheet" href="styles.css"> <!-- Link to CSS styles -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Management System</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Client Management System</h1> <!-- Main heading -->
-    <div class="tabs"> <!-- Container for tabs -->
-        <button class="tablink" onclick="openTab('Clients')">Clients</button> <!-- Tab for Clients -->
-        <button class="tablink" onclick="openTab('Contacts')">Contacts</button> <!-- Tab for Contacts -->
+    <h1>Client Management System</h1>
+    <div class="tabs">
+        <button class="tablink" onclick="openTab('Clients')">Clients</button>
+        <button class="tablink" onclick="openTab('Contacts')">Contacts</button>
     </div>
 
-    <div id="Clients" class="tabcontent"> <!-- Content for Clients tab -->
-        <h2>Add Client</h2> <!-- Subheading for adding clients -->
-        <input type="text" id="clientNameInput" placeholder="Enter client name"> <!-- Input for client name -->
-        <button onclick="addClient()">Add Client</button> <!-- Button to add client -->
-        <table id="clientTable"> <!-- Table to display clients -->
+    <div id="Clients" class="tabcontent">
+        <h2>Add Client</h2>
+        <label for="clientNameInput">Client Name:</label>
+        <input type="text" id="clientNameInput" placeholder="Enter client name">
+        <button onclick="addClient()">Add Client</button>
+        <table id="clientTable">
             <tr>
                 <th>Client Name</th>
                 <th>Linked Contacts</th>
@@ -25,13 +26,16 @@
         </table>
     </div>
 
-    <div id="Contacts" class="tabcontent"> <!-- Content for Contacts tab -->
-        <h2>Add Contact</h2> <!-- Subheading for adding contacts -->
-        <input type="text" id="contactNameInput" placeholder="Enter contact name"> <!-- Input for contact name -->
-        <input type="email" id="contactEmailInput" placeholder="Enter contact email"> <!-- Input for contact email -->
-        <select id="clientSelector"></select> <!-- Dropdown for selecting a client -->
-        <button onclick="addContact()">Add Contact</button> <!-- Button to add contact -->
-        <table id="contactTable"> <!-- Table to display contacts -->
+    <div id="Contacts" class="tabcontent">
+        <h2>Add Contact</h2>
+        <label for="contactNameInput">Contact Name:</label>
+        <input type="text" id="contactNameInput" placeholder="Enter contact name">
+        <label for="contactEmailInput">Email:</label>
+        <input type="email" id="contactEmailInput" placeholder="Enter contact email">
+        <label for="clientSelector">Select Client:</label>
+        <select id="clientSelector"></select>
+        <button onclick="addContact()">Add Contact</button>
+        <table id="contactTable">
             <tr>
                 <th>Contact Name</th>
                 <th>Email</th>
@@ -41,7 +45,7 @@
         </table>
     </div>
 
-    <div class="message" id="message"></div> <!-- Div for displaying messages -->
-    <script src="app.js"></script> <!-- Link to JavaScript file -->
+    <div class="message" id="message"></div>
+    <script src="app.js"></script>
 </body>
 </html>

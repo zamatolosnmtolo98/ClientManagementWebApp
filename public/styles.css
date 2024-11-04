@@ -52,6 +52,7 @@ tr:nth-child(even) {
 
 tr:hover {
     background-color: #ddd; /* Darker gray on hover */
+    transition: background-color 0.3s ease; /* Smooth transition on hover */
 }
 
 button {
@@ -66,6 +67,14 @@ button {
 
 button:hover {
     background-color: var(--secondary-color); /* Change color on hover */
+}
+
+button:active {
+    background-color: #2980b9; /* A darker shade for active state */
+}
+
+button:focus {
+    outline: 2px solid var(--secondary-color); /* Outline for focus */
 }
 
 input[type="text"], 
