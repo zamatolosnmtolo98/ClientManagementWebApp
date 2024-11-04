@@ -1,118 +1,88 @@
-const apiUrl = 'http://localhost:3000/api';
+async function renderClients() {
+    const clientTable = document.getElementById('clientTable');
+    const clientSelector = document.getElementById('clientSelector');
 
-// Function to open the tab
-function openTab(evt, tabName) {
-    const tabcontents = document.getElementsByClassName('tabcontent');
-    for (let i = 0; i < tabcontents.length; i++) {
-        tabcontents[i].style.display = 'none';
+    try {
+        const response = await fetch('/api/clients');
+        const clients = await response.json();
+
+        clientTable.innerHTML = '';
+        clientSelector.innerHTML = '';
+
+        if (clients.length === 0) {
+            clientTable.innerHTML = '<tr><td colspan="2" class="center">No clients found</td></tr>';
+        } else {
+            clientTable.innerHTML = '<tr><th>Client Name</th><th>Linked Contacts</th></tr>';
+            clients.forEach(client => {
+                const row = `<tr><td>${client.name}</td><td>${client.linkedContacts}</td></tr>`;
+                clientTable.innerHTML += row;
+
+                const option = document.createElement('option');
+                option.value = client.name;
+                option.textContent = client.name;
+                clientSelector.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error("Error loading clients:", error);
     }
-    const tablinks = document.getElementsByClassName('tablink');
-    for (let i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(' active', '');
+}
+
+async function renderContacts() {
+    const contactTable = document.getElementById('contactTable');
+
+    try {
+        const response = await fetch('/api/contacts');
+        const contacts = await response.json();
+
+        contactTable.innerHTML = '';
+
+        if (contacts.length === 0) {
+            contactTable.innerHTML = '<tr><td colspan="4" class="center">No contacts found</td></tr>';
+        } else {
+            contactTable.innerHTML = '<tr><th>Contact Name</th><th>Email</th><th>Client Name</th><th>Action</th></tr>';
+            contacts.forEach((contact, index) => {
+                const row = `<tr><td>${contact.fullName}</td><td>${contact.email}</td><td>${contact.clientName}</td><td><button onclick="unlinkContact(${index})">Unlink</button></td></tr>`;
+                contactTable.innerHTML += row;
+            });
+        }
+    } catch (error) {
+        console.error("Error loading contacts:", error);
     }
+}
+
+async function addClient() {
+    const name = document.getElementById('clientNameInput').value;
+    if (!name) return alert("Client name is required");
+
+    await fetch('/api/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+    });
+    renderClients();
+}
+
+async function addContact() {
+    const fullName = document.getElementById('contactNameInput').value;
+    const email = document.getElementById('contactEmailInput').value;
+    const clientName = document.getElementById('clientSelector').value;
+    if (!fullName || !email || !clientName) return alert("All fields are required");
+
+    await fetch('/api/contacts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, email, clientName })
+    });
+    renderContacts();
+}
+
+async function unlinkContact(index) {
+    await fetch(`/api/contacts/${index}`, { method: 'DELETE' });
+    renderContacts();
+}
+
+function openTab(tabName) {
+    document.querySelectorAll('.tabcontent').forEach(content => content.style.display = 'none');
     document.getElementById(tabName).style.display = 'block';
-    evt.currentTarget.className += ' active';
 }
-
-// Client form submission
-document.getElementById('clientForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const clientName = document.getElementById('clientName').value;
-
-    // Create new client via API
-    const response = await fetch(`${apiUrl}/clients`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ name: clientName })
-    });
-    await response.json(); // Await client creation
-    renderClientList();
-
-    // Clear form
-    this.reset();
-});
-
-// Function to render the client list
-async function renderClientList() {
-    const response = await fetch(`${apiUrl}/clients`);
-    const clients = await response.json();
-    const clientList = document.getElementById('clientList');
-    clientList.innerHTML = ''; // Clear previous list
-
-    // Populate the client list
-    clients.forEach(client => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${client.name}</td>
-            <td>${client.code}</td>
-            <td>${client.linkedContacts}</td>
-        `;
-        clientList.appendChild(row);
-    });
-
-    // Populate the client dropdown for contacts
-    const clientSelect = document.getElementById('clientSelect');
-    clientSelect.innerHTML = '<option value="">Select a client</option>'; // Clear previous options
-    clients.forEach(client => {
-        const option = document.createElement('option');
-        option.value = client.name;
-        option.textContent = client.name;
-        clientSelect.appendChild(option);
-    });
-}
-
-// Contact form submission
-document.getElementById('contactForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const contactName = document.getElementById('fullName').value;
-    const contactEmail = document.getElementById('email').value;
-    const clientName = document.getElementById('clientSelect').value;
-
-    // Create new contact via API
-    const response = await fetch(`${apiUrl}/contacts`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ fullName: contactName, email: contactEmail, clientName })
-    });
-    await response.json(); // Await contact creation
-    renderContactList();
-
-    // Clear form
-    this.reset();
-});
-
-// Function to render the contact list
-async function renderContactList() {
-    const response = await fetch(`${apiUrl}/contacts`);
-    const contacts = await response.json();
-    const contactList = document.getElementById('contactList');
-    contactList.innerHTML = ''; // Clear previous list
-
-    // Check if there are contacts to display
-    if (contacts.length === 0) {
-        contactList.innerHTML = '<tr><td colspan="3" class="center">No contact(s) found</td></tr>';
-        return; // No contacts to display
-    }
-
-    // Populate the contact list
-    contacts.forEach(contact => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${contact.fullName}</td>
-            <td>${contact.email}</td>
-            <td>${contact.clientName}</td>
-        `;
-        contactList.appendChild(row);
-    });
-}
-
-// Initialize the application
-document.addEventListener('DOMContentLoaded', async () => {
-    renderClientList();
-    renderContactList();
-    openTab(event, 'Clients'); // Open Clients tab by default
-});

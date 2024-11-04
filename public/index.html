@@ -3,57 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Management System</title>
+    <title>Client & Contact Management</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Client Management System</h1>
-
+    <h1>Client & Contact Management</h1>
+    
     <div class="tabs">
-        <button class="tablink" onclick="openTab(event, 'Clients')">Clients</button>
-        <button class="tablink" onclick="openTab(event, 'Contacts')">Contacts</button>
+        <button onclick="openTab('clients')">Clients</button>
+        <button onclick="openTab('contacts')">Contacts</button>
     </div>
 
-    <div id="Clients" class="tabcontent">
+    <div id="clients" class="tabcontent">
         <h2>Clients</h2>
-        <form id="clientForm">
-            <input type="text" id="clientName" placeholder="Enter client name" required>
-            <button type="submit">Add Client</button>
-        </form>
-        <table id="clientTable">
-            <thead>
-                <tr>
-                    <th>Client Name</th>
-                    <th>Client Code</th>
-                    <th>Linked Contacts</th>
-                </tr>
-            </thead>
-            <tbody id="clientList"></tbody>
-        </table>
+        <table id="clientTable"></table>
+        <input type="text" id="clientNameInput" placeholder="New Client Name">
+        <button onclick="addClient()">Add Client</button>
     </div>
 
-    <div id="Contacts" class="tabcontent">
+    <div id="contacts" class="tabcontent">
         <h2>Contacts</h2>
-        <form id="contactForm">
-            <input type="text" id="fullName" placeholder="Full Name" required>
-            <input type="email" id="email" placeholder="Email" required>
-            <select id="clientSelect" required>
-                <option value="">Select a client</option>
-            </select>
-            <button type="submit">Add Contact</button>
-        </form>
-        <table id="contactTable">
-            <thead>
-                <tr>
-                    <th>Full Name</th>
-                    <th>Email</th>
-                    <th>Client Name</th>
-                </tr>
-            </thead>
-            <tbody id="contactList"></tbody>
-        </table>
+        <table id="contactTable"></table>
+        <input type="text" id="contactNameInput" placeholder="Contact Name">
+        <input type="text" id="contactEmailInput" placeholder="Email">
+        <select id="clientSelector"></select>
+        <button onclick="addContact()">Add Contact</button>
     </div>
 
-    <script src="scripts.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
