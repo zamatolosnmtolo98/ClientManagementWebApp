@@ -6,6 +6,8 @@ async function renderClients() {
     try {
         // Fetch the list of clients from the server
         const response = await fetch('/api/clients');
+        if (!response.ok) throw new Error('Network response was not ok');
+        
         const clients = await response.json(); // Parse the JSON response
 
         clientTable.innerHTML = ''; // Clear existing content in the client table
@@ -31,6 +33,7 @@ async function renderClients() {
         }
     } catch (error) {
         console.error("Error loading clients:", error); // Log any errors encountered during the fetch
+        alert("Failed to load clients. Please try again later."); // Notify user of the error
     }
 }
 
@@ -41,6 +44,8 @@ async function renderContacts() {
     try {
         // Fetch the list of contacts from the server
         const response = await fetch('/api/contacts');
+        if (!response.ok) throw new Error('Network response was not ok');
+
         const contacts = await response.json(); // Parse the JSON response
 
         contactTable.innerHTML = ''; // Clear existing content in the contact table
@@ -51,14 +56,15 @@ async function renderContacts() {
         } else {
             // Render the table header
             contactTable.innerHTML = '<tr><th>Contact Name</th><th>Email</th><th>Client Name</th><th>Action</th></tr>';
-            contacts.forEach((contact, index) => {
+            contacts.forEach(contact => {
                 // Create a row for each contact with their details and an action button to unlink
-                const row = `<tr><td>${contact.fullName}</td><td>${contact.email}</td><td>${contact.clientName}</td><td><button onclick="unlinkContact(${index})">Unlink</button></td></tr>`;
+                const row = `<tr><td>${contact.fullName}</td><td>${contact.email}</td><td>${contact.clientName}</td><td><button onclick="unlinkContact('${contact.id}')">Unlink</button></td></tr>`;
                 contactTable.innerHTML += row; // Append the row to the table
             });
         }
     } catch (error) {
         console.error("Error loading contacts:", error); // Log any errors encountered during the fetch
+        alert("Failed to load contacts. Please try again later."); // Notify user of the error
     }
 }
 
@@ -67,13 +73,20 @@ async function addClient() {
     const name = document.getElementById('clientNameInput').value; // Get the value from the client name input
     if (!name) return alert("Client name is required"); // Alert if no name is provided
 
-    // Send a POST request to add the new client
-    await fetch('/api/clients', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name }) // Send the client name as JSON
-    });
-    renderClients(); // Refresh the client list after adding
+    try {
+        // Send a POST request to add the new client
+        const response = await fetch('/api/clients', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name }) // Send the client name as JSON
+        });
+        if (!response.ok) throw new Error('Failed to add client');
+        
+        renderClients(); // Refresh the client list after adding
+    } catch (error) {
+        console.error("Error adding client:", error);
+        alert("Failed to add client. Please try again."); // Notify user of the error
+    }
 }
 
 // Function to add a new contact
@@ -81,21 +94,37 @@ async function addContact() {
     const fullName = document.getElementById('contactNameInput').value; // Get the full name from input
     const email = document.getElementById('contactEmailInput').value; // Get the email from input
     const clientName = document.getElementById('clientSelector').value; // Get the selected client from dropdown
-    if (!fullName || !email || !clientName) return alert("All fields are required"); // Alert if any field is empty
 
-    // Send a POST request to add the new contact
-    await fetch('/api/contacts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fullName, email, clientName }) // Send the contact details as JSON
-    });
-    renderContacts(); // Refresh the contact list after adding
+    // Simple email validation
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!fullName || !email || !clientName) return alert("All fields are required"); // Alert if any field is empty
+    if (!emailPattern.test(email)) return alert("Please enter a valid email address"); // Alert if email is invalid
+
+    try {
+        // Send a POST request to add the new contact
+        const response = await fetch('/api/contacts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fullName, email, clientName }) // Send the contact details as JSON
+        });
+        if (!response.ok) throw new Error('Failed to add contact');
+        
+        renderContacts(); // Refresh the contact list after adding
+    } catch (error) {
+        console.error("Error adding contact:", error);
+        alert("Failed to add contact. Please try again."); // Notify user of the error
+    }
 }
 
-// Function to unlink a contact by its index
-async function unlinkContact(index) {
-    await fetch(`/api/contacts/${index}`, { method: 'DELETE' }); // Send a DELETE request for the contact
-    renderContacts(); // Refresh the contact list after unlinking
+// Function to unlink a contact by its ID
+async function unlinkContact(contactId) {
+    try {
+        await fetch(`/api/contacts/${contactId}`, { method: 'DELETE' }); // Send a DELETE request for the contact
+        renderContacts(); // Refresh the contact list after unlinking
+    } catch (error) {
+        console.error("Error unlinking contact:", error);
+        alert("Failed to unlink contact. Please try again."); // Notify user of the error
+    }
 }
 
 // Function to open a specific tab in the UI
