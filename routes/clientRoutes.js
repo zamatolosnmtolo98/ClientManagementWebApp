@@ -6,9 +6,7 @@ let clients = [];
 
 // Get all clients
 router.get('/', (req, res) => {
-    // Return the list of clients without the auto-generated code
-    const clientsResponse = clients.map(({ id, name }) => ({ id, name }));
-    res.json(clientsResponse);
+    res.json(clients); // Return the list of clients
 });
 
 // Add a new client
@@ -17,11 +15,7 @@ router.post('/', (req, res) => {
     if (!name) {
         return res.status(400).send('Client name is required'); // Validation check
     }
-    const newClient = { 
-        id: clients.length + 1, 
-        name, 
-        code: `C${clients.length + 1}` // Auto-generated client code
-    }; 
+    const newClient = { id: clients.length + 1, name }; // Create a new client object
     clients.push(newClient); // Add the new client to the store
     res.status(201).json(newClient); // Respond with the created client
 });
