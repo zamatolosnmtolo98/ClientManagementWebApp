@@ -1,5 +1,6 @@
 const express = require('express'); // Import express
 const router = express.Router(); // Create a router
+const { v4: uuidv4 } = require('uuid'); // Import UUID for unique ID generation
 
 let contacts = []; // Sample in-memory data store for contacts
 
@@ -14,14 +15,14 @@ router.post('/', (req, res) => {
     if (!fullName || !email || !clientId) {
         return res.status(400).json({ message: 'Full name, email, and client ID are required' }); // Validation check
     }
-    const newContact = { id: contacts.length + 1, fullName, email, clientId }; // Create a new contact object
+    const newContact = { id: uuidv4(), fullName, email, clientId }; // Create a new contact object with a unique ID
     contacts.push(newContact); // Add the new contact to the store
     res.status(201).json(newContact); // Respond with the created contact
 });
 
 // Delete a contact
 router.delete('/:id', (req, res) => {
-    const id = parseInt(req.params.id, 10); // Get contact ID from request params
+    const id = req.params.id; // Get contact ID from request params
     const initialLength = contacts.length; // Store initial length of contacts array
     contacts = contacts.filter(contact => contact.id !== id); // Remove contact from the store
     if (contacts.length < initialLength) {
