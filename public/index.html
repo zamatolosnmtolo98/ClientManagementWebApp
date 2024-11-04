@@ -3,177 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Management System</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <title>Client Management App</title>
+    <style>
+        /* Simple CSS for layout and tab styles */
+        .tab { cursor: pointer; padding: 10px; margin-right: 5px; }
+        .tabcontent { display: none; padding: 20px; border: 1px solid #ccc; }
+        .center { text-align: center; }
+    </style>
 </head>
 <body>
-    <h1>Client Management System</h1>
-
-    <!-- Tabs for navigating between sections -->
-    <div class="tabs">
-        <button class="tablink" onclick="openTab(event, 'Clients')">Clients</button>
-        <button class="tablink" onclick="openTab(event, 'Contacts')">Contacts</button>
+    <h1>Client Management</h1>
+    <div>
+        <button class="tab" onclick="openTab('clientsTab')">Clients</button>
+        <button class="tab" onclick="openTab('contactsTab')">Contacts</button>
     </div>
 
-    <!-- Clients Tab Content -->
-    <div id="Clients" class="tabcontent">
-        <h2>Clients</h2>
-        <form id="clientForm">
-            <input type="text" id="clientName" placeholder="Client Name" required>
-            <input type="text" id="clientCode" placeholder="Client Code" required readonly>
-            <button type="submit">Add Client</button>
-        </form>
-        <table id="clientsTable">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Client Code</th>
-                    <th>No of Linked Contacts</th>
-                </tr>
-            </thead>
-            <tbody id="clientsList"></tbody>
+    <div id="clientsTab" class="tabcontent">
+        <h2>Manage Clients</h2>
+        <input type="text" id="clientNameInput" placeholder="Client Name" required>
+        <button id="addClientButton">Add Client</button>
+        <table id="clientTable">
+            <tr>
+                <th>Client Name</th>
+                <th>Linked Contacts</th>
+            </tr>
         </table>
-        <div id="noClientsMessage" class="message"></div>
     </div>
 
-    <!-- Contacts Tab Content -->
-    <div id="Contacts" class="tabcontent">
-        <h2>Contacts</h2>
-        <form id="contactForm">
-            <input type="text" id="contactFullName" placeholder="Full Name" required>
-            <input type="email" id="contactEmail" placeholder="Email" required>
-            <select id="linkClientCode" required>
-                <option value="" disabled selected>Select Client Code</option>
-                <!-- Options will be populated by JavaScript -->
-            </select>
-            <button type="submit">Link Contact</button>
-        </form>
-        <table id="contactsTable">
-            <thead>
-                <tr>
-                    <th>Contact Full Name</th>
-                    <th>Email Address</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="contactsList"></tbody>
+    <div id="contactsTab" class="tabcontent">
+        <h2>Manage Contacts</h2>
+        <input type="text" id="contactNameInput" placeholder="Contact Full Name" required>
+        <input type="email" id="contactEmailInput" placeholder="Contact Email" required>
+        <select id="clientSelector"></select>
+        <button id="addContactButton">Add Contact</button>
+        <table id="contactTable">
+            <tr>
+                <th>Contact Name</th>
+                <th>Email</th>
+                <th>Client Name</th>
+                <th>Action</th>
+            </tr>
         </table>
-        <div id="noContactsMessage" class="message"></div>
     </div>
 
     <script>
-        // Function to open the specified tab
-        function openTab(evt, tabName) {
-            var i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("tabcontent");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none"; // Hide all tab content
-            }
-            tablinks = document.getElementsByClassName("tablink");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].className = tablinks[i].className.replace(" active", ""); // Remove active class
-            }
-            document.getElementById(tabName).style.display = "block"; // Show the selected tab
-            evt.currentTarget.className += " active"; // Add active class to the clicked tab
-        }
+        document.addEventListener("DOMContentLoaded", () => {
+            // Add event listeners for buttons
+            document.getElementById("addClientButton").addEventListener("click", addClient);
+            document.getElementById("addContactButton").addEventListener("click", addContact);
 
-        // Function to display clients in the table
-        function displayClients(clients) {
-            const clientsList = document.getElementById('clientsList');
-            clientsList.innerHTML = ''; // Clear existing content
-            clients.forEach(client => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td>${client.name}</td>
-                                 <td>${client.clientCode}</td>
-                                 <td>${client.linkedContacts.length}</td>`;
-                clientsList.appendChild(row); // Append the row to the table
-            });
-            document.getElementById('noClientsMessage').style.display = clients.length ? 'none' : 'block'; // Toggle no clients message
-        }
-
-        // Function to display contacts in the table
-        function displayContacts(contacts) {
-            const contactsList = document.getElementById('contactsList');
-            contactsList.innerHTML = ''; // Clear existing content
-            contacts.forEach(contact => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td>${contact.fullName}</td>
-                                 <td>${contact.email}</td>
-                                 <td><button onclick="unlinkContact('${contact.fullName}')">Unlink</button></td>`;
-                contactsList.appendChild(row); // Append the row to the table
-            });
-            document.getElementById('noContactsMessage').style.display = contacts.length ? 'none' : 'block'; // Toggle no contacts message
-        }
-
-        // Function to fetch and display clients
-        async function fetchClients() {
-            const response = await fetch('/api/clients'); // Fetch clients from the server
-            const clients = await response.json(); // Parse JSON response
-            displayClients(clients); // Display clients
-            populateClientOptions(clients); // Populate client options for linking contacts
-        }
-
-        // Function to populate client options in the contact form
-        function populateClientOptions(clients) {
-            const linkClientCode = document.getElementById('linkClientCode');
-            linkClientCode.innerHTML = '<option value="" disabled selected>Select Client Code</option>'; // Reset options
-            clients.forEach(client => {
-                const option = document.createElement('option');
-                option.value = client.clientCode; // Set option value to client code
-                option.textContent = client.clientCode; // Set option text to client code
-                linkClientCode.appendChild(option); // Append the option to the select
-            });
-        }
-
-        // Function to fetch and display contacts
-        async function fetchContacts() {
-            const response = await fetch('/api/contacts'); // Fetch contacts from the server
-            const contacts = await response.json(); // Parse JSON response
-            displayContacts(contacts); // Display contacts
-        }
-
-        // Add event listener for the client form submission
-        document.getElementById('clientForm').addEventListener('submit', async (event) => {
-            event.preventDefault(); // Prevent page reload
-            const clientName = document.getElementById('clientName').value; // Get client name
-            const clientCode = 'CL' + Date.now(); // Generate a unique client code
-            const response = await fetch('/api/clients', {
-                method: 'POST', // Specify POST method
-                headers: { 'Content-Type': 'application/json' }, // Set content type
-                body: JSON.stringify({ name: clientName, clientCode }) // Send client data
-            });
-            await fetchClients(); // Refresh clients list
-            document.getElementById('clientForm').reset(); // Reset the form
+            // Initialize by showing the clients tab
+            openTab('clientsTab');
         });
 
-        // Add event listener for the contact form submission
-        document.getElementById('contactForm').addEventListener('submit', async (event) => {
-            event.preventDefault(); // Prevent page reload
-            const contactFullName = document.getElementById('contactFullName').value; // Get contact full name
-            const contactEmail = document.getElementById('contactEmail').value; // Get contact email
-            const clientCode = document.getElementById('linkClientCode').value; // Get selected client code
-            const response = await fetch(`/api/clients/${clientCode}/contacts`, {
-                method: 'POST', // Specify POST method
-                headers: { 'Content-Type': 'application/json' }, // Set content type
-                body: JSON.stringify({ fullName: contactFullName, email: contactEmail }) // Send contact data
-            });
-            await fetchContacts(); // Refresh contacts list
-            document.getElementById('contactForm').reset(); // Reset the form
-        });
+        async function renderClients() {
+            const clientTable = document.getElementById('clientTable');
+            const clientSelector = document.getElementById('clientSelector');
 
-        // Function to unlink a contact
-        async function unlinkContact(contactFullName) {
-            const clientCode = document.getElementById('linkClientCode').value; // Get selected client code
-            await fetch(`/api/contacts/${clientCode}/${contactFullName}`, {
-                method: 'DELETE' // Specify DELETE method
-            });
-            await fetchContacts(); // Refresh contacts list
+            try {
+                const response = await fetch('/api/clients');
+                const clients = await response.json();
+
+                clientTable.innerHTML = '<tr><th>Client Name</th><th>Linked Contacts</th></tr>';
+                clientSelector.innerHTML = '';
+
+                if (clients.length === 0) {
+                    clientTable.innerHTML += '<tr><td colspan="2" class="center">No clients found</td></tr>';
+                } else {
+                    clients.forEach(client => {
+                        const row = `<tr><td>${client.name}</td><td>${client.linkedContacts || 0}</td></tr>`;
+                        clientTable.innerHTML += row;
+
+                        const option = document.createElement('option');
+                        option.value = client.name;
+                        option.textContent = client.name;
+                        clientSelector.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error("Error loading clients:", error);
+            }
         }
 
-        // Initialize the application by fetching clients and contacts
-        fetchClients(); // Fetch clients on load
-        fetchContacts(); // Fetch contacts on load
+        async function renderContacts() {
+            const contactTable = document.getElementById('contactTable');
+
+            try {
+                const response = await fetch('/api/contacts');
+                const contacts = await response.json();
+
+                contactTable.innerHTML = '<tr><th>Contact Name</th><th>Email</th><th>Client Name</th><th>Action</th></tr>';
+
+                if (contacts.length === 0) {
+                    contactTable.innerHTML += '<tr><td colspan="4" class="center">No contacts found</td></tr>';
+                } else {
+                    contacts.forEach(contact => {
+                        const row = `<tr><td>${contact.fullName}</td><td>${contact.email}</td><td>${contact.client.name}</td><td><button onclick="unlinkContact('${contact._id}')">Unlink</button></td></tr>`;
+                        contactTable.innerHTML += row;
+                    });
+                }
+            } catch (error) {
+                console.error("Error loading contacts:", error);
+            }
+        }
+
+        async function addClient() {
+            const name = document.getElementById('clientNameInput').value;
+            if (!name) return alert("Client name is required");
+
+            await fetch('/api/clients', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name })
+            });
+            renderClients();
+            document.getElementById('clientNameInput').value = ''; // Clear input field
+        }
+
+        async function addContact() {
+            const fullName = document.getElementById('contactNameInput').value;
+            const email = document.getElementById('contactEmailInput').value;
+            const clientName = document.getElementById('clientSelector').value;
+            if (!fullName || !email || !clientName) return alert("All fields are required");
+
+            await fetch('/api/contacts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ fullName, email, clientName })
+            });
+            renderContacts();
+            document.getElementById('contactNameInput').value = ''; // Clear input field
+            document.getElementById('contactEmailInput').value = ''; // Clear input field
+        }
+
+        async function unlinkContact(contactId) {
+            await fetch(`/api/contacts/${contactId}`, { method: 'DELETE' });
+            renderContacts();
+        }
+
+        function openTab(tabName) {
+            document.querySelectorAll('.tabcontent').forEach(content => content.style.display = 'none');
+            document.getElementById(tabName).style.display = 'block';
+            if (tabName === 'clientsTab') {
+                renderClients();
+            } else {
+                renderContacts();
+            }
+        }
     </script>
 </body>
 </html>
