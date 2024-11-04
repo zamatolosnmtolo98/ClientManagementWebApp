@@ -15,7 +15,12 @@ router.post('/', (req, res) => {
     if (!fullName || !email || !clientName) {
         return res.status(400).send('Full name, email, and client name are required'); // Validation check
     }
-    const newContact = { id: contacts.length + 1, fullName, email, clientName }; // Create a new contact object
+    const newContact = { 
+        id: contacts.length + 1, 
+        fullName, 
+        email, 
+        clientName 
+    }; // Create a new contact object
     contacts.push(newContact); // Add the new contact to the store
     res.status(201).json(newContact); // Respond with the created contact
 });
