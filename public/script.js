@@ -12,8 +12,8 @@ function openTab(tabName) {
 
 // Function to add a client
 function addClient() {
-    const name = document.getElementById('clientNameInput').value; // Get client name
-    const code = document.getElementById('clientCodeInput').value; // Get client code
+    const name = document.getElementById('clientNameInput').value.trim(); // Get and trim client name
+    const code = document.getElementById('clientCodeInput').value.trim(); // Get and trim client code
 
     if (name && code) {
         const client = { id: clients.length + 1, name, code }; // Create client object
@@ -21,6 +21,8 @@ function addClient() {
         renderClients(); // Update client table
         document.getElementById('clientNameInput').value = ''; // Clear input
         document.getElementById('clientCodeInput').value = ''; // Clear input
+        populateClientSelector(); // Update client selector for contacts
+        showMessage("Client added successfully!", "success"); // Success message
     } else {
         showMessage("Please enter both client name and code.", "error"); // Error message
     }
@@ -41,13 +43,16 @@ function renderClients() {
 // Function to delete a client
 function deleteClient(clientId) {
     clients = clients.filter(client => client.id !== clientId); // Filter out deleted client
+    contacts = contacts.filter(contact => contact.clientId !== clientId); // Remove associated contacts
     renderClients(); // Update client table
+    renderContacts(); // Update contact table
+    showMessage("Client deleted successfully!", "success"); // Success message
 }
 
 // Function to add a contact
 function addContact() {
-    const name = document.getElementById('contactNameInput').value; // Get contact name
-    const email = document.getElementById('contactEmailInput').value; // Get contact email
+    const name = document.getElementById('contactNameInput').value.trim(); // Get and trim contact name
+    const email = document.getElementById('contactEmailInput').value.trim(); // Get and trim contact email
     const clientId = document.getElementById('clientSelector').value; // Get selected client
 
     if (name && email && clientId) {
@@ -56,6 +61,7 @@ function addContact() {
         renderContacts(); // Update contact table
         document.getElementById('contactNameInput').value = ''; // Clear input
         document.getElementById('contactEmailInput').value = ''; // Clear input
+        showMessage("Contact added successfully!", "success"); // Success message
     } else {
         showMessage("Please enter contact name, email, and select a client.", "error"); // Error message
     }
@@ -67,7 +73,7 @@ function renderContacts() {
     contactTable.innerHTML = ''; // Clear table content
 
     contacts.forEach(contact => {
-        const client = clients.find(c => c.id == contact.clientId); // Find associated client
+        const client = clients.find(c => c.id === parseInt(contact.clientId)); // Find associated client
         const row = document.createElement('tr'); // Create new row for each contact
         row.innerHTML = `<td>${contact.name}</td><td>${contact.email}</td><td>${client ? client.name : 'N/A'}</td><td><button onclick="deleteContact(${contact.id})">Delete</button></td>`; // Set inner HTML for row
         contactTable.appendChild(row); // Append row to table
@@ -78,6 +84,7 @@ function renderContacts() {
 function deleteContact(contactId) {
     contacts = contacts.filter(contact => contact.id !== contactId); // Filter out deleted contact
     renderContacts(); // Update contact table
+    showMessage("Contact deleted successfully!", "success"); // Success message
 }
 
 // Function to show message
@@ -85,28 +92,27 @@ function showMessage(msg, type) {
     const messageDiv = document.getElementById('message'); // Get message div
     messageDiv.innerText = msg; // Set message text
     messageDiv.className = type; // Set class for styling
+    messageDiv.style.display = 'block'; // Show message
     setTimeout(() => {
         messageDiv.innerText = ''; // Clear message after timeout
+        messageDiv.style.display = 'none'; // Hide message
     }, 3000);
 }
 
 // Populate client selector for adding contacts
 function populateClientSelector() {
     const clientSelector = document.getElementById('clientSelector'); // Get client selector
-    clientSelector.innerHTML = ''; // Clear current options
+    clientSelector.innerHTML = '<option value="">Select a client</option>'; // Clear current options and add default
 
     clients.forEach(client => {
-        const option = document.createElement('option'); // Create option for each client
-        option.value = client.id; // Set value to client ID
-        option.textContent = client.name; // Set display text to client name
+        const option = document.createElement('option'); // Create new option
+        option.value = client.id; // Set value
+        option.textContent = client.name; // Set display text
         clientSelector.appendChild(option); // Append option to selector
     });
 }
 
-// Add event listeners
-document.getElementById('clientSelector').addEventListener('change', populateClientSelector); // Populate client selector on change
-
-// Initial tab setup
+// Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
-    openTab('Clients'); // Open Clients tab by default
+    openTab('Clients'); // Open the Clients tab by default
 });

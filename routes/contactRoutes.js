@@ -1,5 +1,6 @@
 const express = require('express'); // Import express
 const router = express.Router(); // Create a router
+const { v4: uuidv4 } = require('uuid'); // Import UUID for unique ID generation
 
 // Sample in-memory data store for contacts (replace with database logic if needed)
 let contacts = [];
@@ -11,28 +12,31 @@ router.get('/', (req, res) => {
 
 // Add a new contact
 router.post('/', (req, res) => {
-    const { fullName, email, clientName } = req.body; // Extract contact details from request body
+    const { fullName, email, clientId } = req.body; // Extract contact details from request body
     // Validation check for required fields
-    if (!fullName || !email || !clientName) {
-        return res.status(400).json({ message: 'Full name, email, and client name are required' }); // Send error if fields are missing
+    if (!fullName || !email || !clientId) {
+        return res.status(400).json({ message: 'Full name, email, and client ID are required' }); // Send error if fields are missing
     }
-    const newContact = { id: contacts.length + 1, fullName, email, clientName }; // Create a new contact object
+
+    // Validate email format
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+        return res.status(400).json({ message: 'Invalid email format' }); // Send error if email is invalid
+    }
+
+    // Check for duplicate contacts
+    if (contacts.some(contact => contact.email === email)) {
+        return res.status(409).json({ message: 'Contact with this email already exists' }); // Error for duplicate email
+    }
+
+    const newContact = { id: uuidv4(), fullName, email, clientId }; // Create a new contact object with a unique ID
     contacts.push(newContact); // Add the new contact to the store
-    res.status(201).json(newContact); // Respond with the created contact
+    res.status(201).json({ message: 'Contact created successfully', contact: newContact }); // Respond with success message and created contact
 });
 
 // Delete a contact
 router.delete('/:id', (req, res) => {
-    const id = parseInt(req.params.id, 10); // Get contact ID from request params
+    const id = req.params.id; // Get contact ID from request params
     const initialLength = contacts.length; // Store initial length of contacts array
     contacts = contacts.filter(contact => contact.id !== id); // Remove contact from the store
     // Check if a contact was deleted
-    if (contacts.length < initialLength) {
-        return res.status(204).send(); // Respond with no content status if deletion was successful
-    } else {
-        return res.status(404).json({ message: 'Contact not found' }); // Send error if no contact was found to delete
-    }
-});
-
-// Export the router for use in the main server file
-module.exports = router;
