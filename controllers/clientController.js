@@ -1,14 +1,23 @@
-const Client = require('../models/clientModel');
+const clientModel = require('../models/clientModel'); // Import client model
 
-exports.getAllClients = (req, res) => {
-    const clients = Client.getAll();
-    res.json(clients);
-};
+// Function to handle GET requests for clients
+function getClients(req, res) {
+    const clients = clientModel.getAllClients(); // Get all clients
+    res.json(clients); // Send clients as JSON response
+}
 
-exports.addClient = (req, res) => {
-    const { name } = req.body;
-    if (!name) return res.status(400).json({ error: 'Client name is required' });
+// Function to handle POST requests to create a new client
+function createClient(req, res) {
+    const { name } = req.body; // Destructure name from request body
+    if (!name) {
+        return res.status(400).json({ message: 'Client name is required' }); // Send error if name is missing
+    }
+    const newClient = clientModel.addClient(name); // Add new client
+    res.status(201).json(newClient); // Send newly created client as JSON response
+}
 
-    const newClient = Client.addClient(name);
-    res.json(newClient);
+// Export controller functions for use in routes
+module.exports = {
+    getClients,
+    createClient
 };

@@ -1,28 +1,41 @@
-const Client = require('./clientModel');
-
+// Contact model representing a contact
 class Contact {
-    constructor(fullName, email, clientName) {
-        this.fullName = fullName;
-        this.email = email;
-        this.clientName = clientName;
-    }
-
-    static contacts = [];
-
-    static getAll() {
-        return this.contacts;
-    }
-
-    static addContact(fullName, email, clientName) {
-        const contact = new Contact(fullName, email, clientName);
-        this.contacts.push(contact);
-        Client.incrementLinkedContacts(clientName);
-        return contact;
-    }
-
-    static unlinkContact(index) {
-        this.contacts.splice(index, 1);
+    constructor(id, fullName, email, clientName) {
+        this.id = id; // Unique identifier for the contact
+        this.fullName = fullName; // Full name of the contact
+        this.email = email; // Email address of the contact
+        this.clientName = clientName; // Associated client name
     }
 }
 
-module.exports = Contact;
+// In-memory array to store contacts
+const contacts = [];
+
+// Function to get all contacts
+function getAllContacts() {
+    return contacts; // Return the array of contacts
+}
+
+// Function to add a new contact
+function addContact(fullName, email, clientName) {
+    const newContact = new Contact(contacts.length + 1, fullName, email, clientName); // Create a new contact with a unique ID
+    contacts.push(newContact); // Add the new contact to the array
+    return newContact; // Return the newly created contact
+}
+
+// Function to delete a contact by ID
+function deleteContact(id) {
+    const index = contacts.findIndex(contact => contact.id === parseInt(id)); // Find index of contact to delete
+    if (index !== -1) {
+        contacts.splice(index, 1); // Remove the contact from the array
+        return true; // Return true if contact was found and deleted
+    }
+    return false; // Return false if contact was not found
+}
+
+// Export functions for use in controllers
+module.exports = {
+    getAllContacts,
+    addContact,
+    deleteContact
+};
