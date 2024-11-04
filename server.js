@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -8,28 +9,64 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Sample data (this would typically come from a database)
-let clients = [
-    { id: 1, name: 'Client A', email: 'clienta@example.com' },
-    { id: 2, name: 'Client B', email: 'clientb@example.com' }
-];
+// In-memory data storage
+let clients = [];
+let contacts = [];
 
-// Routes
-app.get('/', (req, res) => {
-    res.send('Welcome to the Client Management App!');
+// Client class
+class Client {
+    constructor(name) {
+        this.name = name;
+        this.linkedContacts = 0;
+        this.code = this.generateClientCode();
+    }
+
+    generateClientCode() {
+        const prefix = this.name.substring(0, 3).toUpperCase();
+        const suffix = String(clients.filter(c => c.code.startsWith(prefix)).length + 1).padStart(3, '0');
+        return `${prefix}${suffix}`;
+    }
+}
+
+// Contact class
+class Contact {
+    constructor(fullName, email, clientName) {
+        this.fullName = fullName;
+        this.email = email;
+        this.clientName = clientName;
+    }
+}
+
+// Client routes
+app.post('/api/clients', (req, res) => {
+    const { name } = req.body;
+    const client = new Client(name);
+    clients.push(client);
+    res.status(201).json(client);
 });
 
-// Get all clients
-app.get('/clients', (req, res) => {
+app.get('/api/clients', (req, res) => {
     res.json(clients);
 });
 
-// Add a new client
-app.post('/clients', (req, res) => {
-    const newClient = { id: clients.length + 1, ...req.body };
-    clients.push(newClient);
-    res.status(201).json(newClient);
+// Contact routes
+app.post('/api/contacts', (req, res) => {
+    const { fullName, email, clientName } = req.body;
+    const contact = new Contact(fullName, email, clientName);
+    contacts.push(contact);
+
+    // Increment linked contacts count in the client
+    const client = clients.find(c => c.name === clientName);
+    if (client) {
+        client.linkedContacts++;
+    }
+    res.status(201).json(contact);
+});
+
+app.get('/api/contacts', (req, res) => {
+    res.json(contacts);
 });
 
 // Start the server

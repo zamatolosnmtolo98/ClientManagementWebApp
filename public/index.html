@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Management System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Client Management System</h1>
+
+    <div class="tabs">
+        <button class="tablink" onclick="openTab(event, 'Clients')">Clients</button>
+        <button class="tablink" onclick="openTab(event, 'Contacts')">Contacts</button>
+    </div>
+
+    <div id="Clients" class="tabcontent">
+        <h2>Clients</h2>
+        <form id="clientForm">
+            <input type="text" id="clientName" placeholder="Enter client name" required>
+            <button type="submit">Add Client</button>
+        </form>
+        <table id="clientTable">
+            <thead>
+                <tr>
+                    <th>Client Name</th>
+                    <th>Client Code</th>
+                    <th>Linked Contacts</th>
+                </tr>
+            </thead>
+            <tbody id="clientList"></tbody>
+        </table>
+    </div>
+
+    <div id="Contacts" class="tabcontent">
+        <h2>Contacts</h2>
+        <form id="contactForm">
+            <input type="text" id="fullName" placeholder="Full Name" required>
+            <input type="email" id="email" placeholder="Email" required>
+            <select id="clientSelect" required>
+                <option value="">Select a client</option>
+            </select>
+            <button type="submit">Add Contact</button>
+        </form>
+        <table id="contactTable">
+            <thead>
+                <tr>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Client Name</th>
+                </tr>
+            </thead>
+            <tbody id="contactList"></tbody>
+        </table>
+    </div>
+
+    <script src="scripts.js"></script>
+</body>
+</html>
