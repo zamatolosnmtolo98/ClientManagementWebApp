@@ -151,14 +151,14 @@ function renderClientList() {
         clientList.appendChild(row);
     });
 
-    // Update client selector in contact form
-    updateClientSelector();
+    // Populate the client selector for contacts
+    populateClientSelector();
 }
 
-// Function to update client selector in contact form
-function updateClientSelector() {
+// Populate client selector in contact form
+function populateClientSelector() {
     const clientSelector = document.getElementById('clientSelector');
-    clientSelector.innerHTML = '<option value="">Select Client</option>'; // Reset options
+    clientSelector.innerHTML = '<option value="">Select Client</option>'; // Clear existing options
 
     clientManager.clients.forEach(client => {
         const option = document.createElement('option');
@@ -168,7 +168,7 @@ function updateClientSelector() {
     });
 }
 
-// Link new contact
+// Add new contact
 document.getElementById('contactForm').addEventListener('submit', function(event) {
     event.preventDefault(); // Prevent form submission
     const contactName = document.getElementById('contactName').value;
@@ -200,28 +200,28 @@ function renderContactList() {
         return; // No contacts to display
     }
 
-    // Sort contacts by full name
-    clientManager.contacts.sort((a, b) => {
-        const nameA = a.fullName.toLowerCase();
-        const nameB = b.fullName.toLowerCase();
-        return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
-    });
+    // Sort contacts by name
+    clientManager.contacts.sort((a, b) => a.fullName.localeCompare(b.fullName));
 
     // Populate the contact list
     clientManager.contacts.forEach((contact, index) => {
         const row = document.createElement('tr');
         row.innerHTML = `
-            <td>${contact.fullName.split(', ').reverse().join(', ')}</td> 
+            <td>${contact.fullName}</td>
             <td>${contact.email}</td>
-            <td><a href="#" onclick="unlinkContact(${index})">Unlink</a></td>
+            <td><button onclick="unlinkContact(${index})">Remove</button></td>
         `;
         contactList.appendChild(row);
     });
 }
 
-// Function to unlink a contact
+// Function to unlink contact
 function unlinkContact(index) {
-    clientManager.unlinkContact(index); // Use ClientManager to unlink
-    renderClientList(); // Refresh the client list
-    renderContactList(); // Refresh the contact list
+    clientManager.unlinkContact(index);
+    renderContactList();
 }
+
+// Initialize first tab as active
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelector('.tablink').click(); // Simulate a click on the first tab
+});

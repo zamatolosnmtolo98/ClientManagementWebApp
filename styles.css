@@ -1,5 +1,6 @@
 body {
     font-family: Arial, sans-serif;
+    background-color: #f4f4f4; /* Light background for contrast */
 }
 
 .tabcontent {
@@ -20,10 +21,13 @@ th,
 td {
     padding: 8px 12px;
     border: 1px solid #ddd;
+    line-height: 1.5; /* Improved spacing between lines */
 }
 
 th {
     text-align: left;
+    background-color: #4CAF50; /* Green background for header */
+    color: white; /* White text for header */
 }
 
 .center {
@@ -36,4 +40,32 @@ th {
 
 .tabs button {
     padding: 10px;
+    border: none; /* Remove default border */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #e7e7e7; /* Light background */
+    cursor: pointer; /* Change cursor on hover */
+    transition: background-color 0.3s; /* Smooth transition */
+}
+
+.tabs button.active {
+    background-color: #4CAF50; /* Same as header for active tab */
+    color: white; /* Ensure active tab text is visible */
+}
+
+.tabs button:hover {
+    background-color: #ddd; /* Light background on button hover */
+}
+
+table tr:hover {
+    background-color: #f1f1f1; /* Light gray background on hover */
+}
+
+@media (max-width: 600px) {
+    th, td {
+        padding: 6px 10px; /* Smaller padding on mobile */
+    }
+
+    .tabs button {
+        padding: 8px; /* Smaller button padding on mobile */
+    }
 }
