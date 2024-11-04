@@ -1,7 +1,7 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express'); // Import express
+const router = express.Router(); // Create a router
 
-// Sample in-memory data store (replace with database logic)
+// Sample in-memory data store for clients (replace with database logic if needed)
 let clients = [];
 
 // Get all clients
@@ -13,11 +13,12 @@ router.get('/', (req, res) => {
 router.post('/', (req, res) => {
     const { name } = req.body; // Extract client name from request body
     if (!name) {
-        return res.status(400).send('Client name is required'); // Validation check
+        return res.status(400).json({ message: 'Client name is required' }); // Send error if name is missing
     }
     const newClient = { id: clients.length + 1, name }; // Create a new client object
     clients.push(newClient); // Add the new client to the store
     res.status(201).json(newClient); // Respond with the created client
 });
 
-module.exports = router; // Export the router
+// Export the router for use in the main server file
+module.exports = router;
