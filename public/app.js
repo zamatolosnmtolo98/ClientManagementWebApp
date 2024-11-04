@@ -1,60 +1,119 @@
-// Import required modules
-const express = require('express'); // Web framework for Node.js
-const bodyParser = require('body-parser'); // Middleware for parsing request bodies
-const cors = require('cors'); // Middleware for enabling CORS
-const clientRoutes = require('./routes/clientRoutes'); // Import client routes
-const contactRoutes = require('./routes/contactRoutes'); // Import contact routes
-const { body, validationResult } = require('express-validator'); // Validation library
-require('dotenv').config(); // Load environment variables from .env file
+const apiUrl = 'http://localhost:3000/api'; // Base URL for API endpoints
 
-// Initialize Express application
-const app = express();
-
-// Use middleware
-app.use(cors()); // Enable CORS for all requests
-app.use(bodyParser.json()); // Parse JSON request bodies
-
-// Serve static files from the public directory
-app.use(express.static('public'));
-
-// Set up API routes
-app.use('/api/clients', clientRoutes); // Client-related routes
-app.use('/api/contacts', contactRoutes); // Contact-related routes
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-    res.status(200).send('OK');
-});
-
-// Logging middleware
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`); // Log the request method and URL
-    next(); // Pass control to the next middleware
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack); // Log the error stack for debugging
-    res.status(500).send('Something went wrong!'); // Respond with a generic error message
-});
-
-// Validation middleware example for client creation
-const validateClient = [
-    body('name').isString().notEmpty().withMessage('Name is required'),
-    body('code').isString().notEmpty().withMessage('Client code is required'),
-];
-
-// Example route that uses validation
-app.post('/api/clients', validateClient, (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+// Function to open a tab in the UI
+function openTab(tabName) {
+    const tabcontent = document.getElementsByClassName('tabcontent'); // Get all tab contents
+    for (let i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = 'none'; // Hide all tab contents
     }
-    // Handle client creation logic here
-});
+    document.getElementById(tabName).style.display = 'block'; // Show the selected tab
+}
 
-// Start the server on port 3000
-const PORT = process.env.PORT || 3000; // Use environment variable for port if available
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`); // Log server start
-});
+// Function to add a new client
+async function addClient() {
+    const clientName = document.getElementById('clientNameInput').value; // Get client name from input
+    const response = await fetch(`${apiUrl}/clients`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: clientName }) // Send client name in request body
+    });
+    if (response.ok) {
+        const newClient = await response.json(); // Get the newly created client from response
+        displayClients(newClient); // Display the new client
+        showMessage('Client added successfully'); // Show success message
+        document.getElementById('clientNameInput').value = ''; // Clear input field
+    } else {
+        const error = await response.json(); // Get error details
+        showMessage(`Failed to add client: ${error.message}`); // Show error message
+    }
+}
+
+// Function to display a client in the clients table
+function displayClients(client) {
+    const table = document.getElementById('clientTable'); // Get the clients table
+    const row = table.insertRow(); // Insert a new row in the table
+    const cell1 = row.insertCell(0); // Insert a new cell for client name
+    const cell2 = row.insertCell(1); // Insert a new cell for linked contacts
+    cell1.innerHTML = client.name; // Set cell content to client name
+    cell2.innerHTML = '0'; // Initialize linked contacts count to 0
+}
+
+// Function to add a new contact
+async function addContact() {
+    const fullName = document.getElementById('contactNameInput').value; // Get contact name from input
+    const email = document.getElementById('contactEmailInput').value; // Get contact email from input
+    const clientName = document.getElementById('clientSelector').value; // Get selected client name
+    const response = await fetch(`${apiUrl}/contacts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fullName, email, clientName }) // Send contact details in request body
+    });
+    if (response.ok) {
+        const newContact = await response.json(); // Get the newly created contact from response
+        displayContacts(newContact); // Display the new contact
+        showMessage('Contact added successfully'); // Show success message
+        document.getElementById('contactNameInput').value = ''; // Clear input field
+        document.getElementById('contactEmailInput').value = ''; // Clear email field
+    } else {
+        const error = await response.json(); // Get error details
+        showMessage(`Failed to add contact: ${error.message}`); // Show error message
+    }
+}
+
+// Function to display a contact in the contacts table
+function displayContacts(contact) {
+    const table = document.getElementById('contactTable'); // Get the contacts table
+    const row = table.insertRow(); // Insert a new row in the table
+    row.setAttribute('data-id', contact.id); // Set data-id attribute for easy reference
+    const cell1 = row.insertCell(0); // Insert a new cell for contact name
+    const cell2 = row.insertCell(1); // Insert a new cell for contact email
+    const cell3 = row.insertCell(2); // Insert a new cell for client name
+    const cell4 = row.insertCell(3); // Insert a new cell for action
+    cell1.innerHTML = contact.fullName; // Set cell content to contact name
+    cell2.innerHTML = contact.email; // Set cell content to contact email
+    cell3.innerHTML = contact.clientName; // Set cell content to client name
+    cell4.innerHTML = `<button onclick="unlinkContact(${contact.id})">Unlink</button>`; // Button to unlink contact
+}
+
+// Function to unlink a contact
+async function unlinkContact(id) {
+    const response = await fetch(`${apiUrl}/contacts/${id}`, { method: 'DELETE' }); // Send DELETE request
+    if (response.ok) {
+        const row = document.querySelector(`#contactTable tr[data-id="${id}"]`); // Find the contact row in the table
+        if (row) {
+            row.remove(); // Remove the row from the table
+        }
+        showMessage('Contact unlinked successfully'); // Show success message
+    } else {
+        const error = await response.json(); // Get error details
+        showMessage(`Failed to unlink contact: ${error.message}`); // Show error message
+    }
+}
+
+// Function to show messages in the UI
+function showMessage(message) {
+    const messageDiv = document.getElementById('message'); // Get message div
+    messageDiv.innerHTML = message; // Set message content
+    setTimeout(() => {
+        messageDiv.innerHTML = ''; // Clear message after a timeout
+    }, 3000);
+}
+
+// Fetch initial data and populate tables when the page loads
+window.onload = async () => {
+    const clientResponse = await fetch(`${apiUrl}/clients`); // Fetch clients
+    if (clientResponse.ok) {
+        const clients = await clientResponse.json(); // Parse clients response
+        clients.forEach(displayClients); // Display each client
+    } else {
+        showMessage('Failed to load clients'); // Show error message
+    }
+
+    const contactResponse = await fetch(`${apiUrl}/contacts`); // Fetch contacts
+    if (contactResponse.ok) {
+        const contacts = await contactResponse.json(); // Parse contacts response
+        contacts.forEach(displayContacts); // Display each contact
+    } else {
+        showMessage('Failed to load contacts'); // Show error message
+    }
+};
