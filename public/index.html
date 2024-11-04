@@ -3,33 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client & Contact Management</title>
+    <title>Client Management App</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Client & Contact Management</h1>
-    
-    <div class="tabs">
-        <button onclick="openTab('clients')">Clients</button>
-        <button onclick="openTab('contacts')">Contacts</button>
+    <div class="container">
+        <h1>Client Management App</h1>
+        
+        <div class="tabs">
+            <button class="tablinks" onclick="openTab(event, 'Clients')">Clients</button>
+            <button class="tablinks" onclick="openTab(event, 'Contacts')">Contacts</button>
+        </div>
+
+        <div id="Clients" class="tabcontent active">
+            <h2>Clients</h2>
+            <form id="clientForm">
+                <input type="text" id="clientName" placeholder="Enter Client Name" required>
+                <button type="submit">Add Client</button>
+            </form>
+            <div id="clientList" class="list"></div>
+        </div>
+
+        <div id="Contacts" class="tabcontent">
+            <h2>Contacts</h2>
+            <form id="contactForm">
+                <input type="text" id="contactName" placeholder="Enter Contact Name" required>
+                <button type="submit">Add Contact</button>
+            </form>
+            <div id="contactList" class="list"></div>
+        </div>
     </div>
 
-    <div id="clients" class="tabcontent">
-        <h2>Clients</h2>
-        <table id="clientTable"></table>
-        <input type="text" id="clientNameInput" placeholder="New Client Name">
-        <button onclick="addClient()">Add Client</button>
-    </div>
-
-    <div id="contacts" class="tabcontent">
-        <h2>Contacts</h2>
-        <table id="contactTable"></table>
-        <input type="text" id="contactNameInput" placeholder="Contact Name">
-        <input type="text" id="contactEmailInput" placeholder="Email">
-        <select id="clientSelector"></select>
-        <button onclick="addContact()">Add Contact</button>
-    </div>
-
-    <script src="script.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
