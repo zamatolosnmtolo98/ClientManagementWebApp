@@ -4,70 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Client and Contact Management</title>
-    <link rel="stylesheet" href="styles.css"> <!-- Link to CSS -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
     <div class="container">
         <h2>Client and Contact Management</h2>
 
-        <!-- Tabs for Clients and Contacts -->
-        <div>
+        <div class="tab">
             <button onclick="openTab('Clients')">Clients</button>
             <button onclick="openTab('Contacts')">Contacts</button>
         </div>
 
-        <!-- Clients Tab -->
         <div id="Clients" class="tabcontent">
             <h3>Add Client</h3>
-            <input type="text" id="clientNameInput" placeholder="Client Name" />
+            <input type="text" id="clientNameInput" placeholder="Client Name">
             <button onclick="addClient()">Add Client</button>
+
             <h3>Client List</h3>
             <table id="clientsTable">
                 <thead>
                     <tr>
-                        <th style="text-align: left;">Name</th>
-                        <th style="text-align: left;">Client Code</th>
-                        <th style="text-align: center;">No of Linked Contacts</th>
-                        <th>Action</th>
+                        <th>Name</th>
+                        <th>Client Code</th>
+                        <th>No of Linked Contacts</th>
                     </tr>
                 </thead>
                 <tbody>
                     <!-- Client rows will be populated here -->
                 </tbody>
             </table>
+            <div id="message" class="center"></div>
         </div>
 
-        <!-- Contacts Tab -->
-        <div id="Contacts" class="tabcontent" style="display: none;">
+        <div id="Contacts" class="tabcontent" style="display:none;">
             <h3>Add Contact</h3>
-            <input type="text" id="contactNameInput" placeholder="Contact Full Name (Surname First)" />
-            <input type="email" id="contactEmailInput" placeholder="Contact Email" />
+            <input type="text" id="contactNameInput" placeholder="Contact Full Name (Surname First)">
+            <input type="email" id="contactEmailInput" placeholder="Contact Email">
             <select id="clientSelector">
-                <option value="">Select Client</option>
-                <!-- Options will be populated here -->
+                <!-- Options populated dynamically -->
             </select>
             <button onclick="addContact()">Add Contact</button>
+
             <h3>Contact List</h3>
             <table id="contactTable">
                 <thead>
                     <tr>
-                        <th style="text-align: left;">Contact Full Name</th>
-                        <th style="text-align: left;">Contact Email Address</th>
-                        <th>URL</th>
+                        <th>Contact Full Name</th>
+                        <th>Email Address</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <!-- Contact rows will be populated here -->
                 </tbody>
             </table>
+            <div id="message" class="center"></div>
         </div>
-
-        <!-- Message Display -->
-        <div id="message" class="center"></div>
     </div>
-
-    <script src="app.js"></script> <!-- Link to JavaScript -->
+    
+    <script src="app.js"></script>
 </body>
 </html>
-

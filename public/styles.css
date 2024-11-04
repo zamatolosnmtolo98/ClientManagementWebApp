@@ -47,11 +47,11 @@ th {
 }
 
 tr:nth-child(even) {
-    background-color: #f2f2f2; /* Light gray for even rows */
+    background-color: #f9f9f9; /* Light gray for even rows */
 }
 
 tr:hover {
-    background-color: #ddd; /* Darker gray on hover */
+    background-color: #e0e0e0; /* Darker gray on hover */
 }
 
 button {
@@ -81,6 +81,14 @@ select {
 
 .center {
     text-align: center; /* Center text */
+}
+
+.error {
+    color: red; /* Error message color */
+}
+
+.success {
+    color: green; /* Success message color */
 }
 
 @media (max-width: 600px) {

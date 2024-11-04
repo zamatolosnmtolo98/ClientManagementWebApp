@@ -1,57 +1,59 @@
 const express = require('express');
 const cors = require('cors');
+const bodyParser = require('body-parser');
+const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 3000; // Change the port back to 3000
 
-app.use(cors()); // Enable CORS
-app.use(express.json()); // Parse JSON requests
+app.use(cors());
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public'))); // Serve static files from the public directory
 
-let clients = []; // Array to hold clients
-let contacts = []; // Array to hold contacts
+let clients = [];
+let contacts = [];
 
-// API to get all clients
+// Route to get all clients
 app.get('/api/clients', (req, res) => {
-    res.json(clients); // Return clients array
+    res.json(clients);
 });
 
-// API to add a new client
+// Route to add a client
 app.post('/api/clients', (req, res) => {
-    const { name, code } = req.body; // Get client data from request
-    const newClient = { id: clients.length + 1, name, code }; // Create new client object
-    clients.push(newClient); // Add to clients array
-    res.status(201).json(newClient); // Return created client
+    const { name, code } = req.body;
+    const client = { id: clients.length + 1, name, code, contactCount: 0 }; // Add contactCount
+    clients.push(client);
+    res.status(201).json(client);
 });
 
-// API to delete a client
+// Route to delete a client
 app.delete('/api/clients/:id', (req, res) => {
-    const clientId = parseInt(req.params.id); // Get client ID from request
-    clients = clients.filter(client => client.id !== clientId); // Remove client
-    contacts = contacts.filter(contact => contact.clientId !== clientId); // Remove linked contacts
-    res.sendStatus(204); // No content response
+    const { id } = req.params;
+    clients = clients.filter(client => client.id !== parseInt(id));
+    res.status(204).end();
 });
 
-// API to get all contacts
+// Route to get all contacts
 app.get('/api/contacts', (req, res) => {
-    res.json(contacts); // Return contacts array
+    res.json(contacts);
 });
 
-// API to add a new contact
+// Route to add a contact
 app.post('/api/contacts', (req, res) => {
-    const { fullName, email, clientId } = req.body; // Get contact data from request
-    const newContact = { id: contacts.length + 1, fullName, email, clientId }; // Create new contact object
-    contacts.push(newContact); // Add to contacts array
-    res.status(201).json(newContact); // Return created contact
+    const { name, email, clientId } = req.body;
+    const contact = { id: contacts.length + 1, name, email, clientId };
+    contacts.push(contact);
+    res.status(201).json(contact);
 });
 
-// API to delete a contact
+// Route to delete a contact
 app.delete('/api/contacts/:id', (req, res) => {
-    const contactId = parseInt(req.params.id); // Get contact ID from request
-    contacts = contacts.filter(contact => contact.id !== contactId); // Remove contact
-    res.sendStatus(204); // No content response
+    const { id } = req.params;
+    contacts = contacts.filter(contact => contact.id !== parseInt(id));
+    res.status(204).end();
 });
 
-// Start server
+// Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`); // Log server start
+    console.log(`Server is running on http://localhost:${PORT}`);
 });
