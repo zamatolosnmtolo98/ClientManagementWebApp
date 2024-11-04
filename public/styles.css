@@ -1,47 +1,96 @@
+:root {
+    --primary-color: #3498db; /* Blue */
+    --secondary-color: #2ecc71; /* Green */
+    --background-color: #f4f4f4; /* Light Gray */
+    --text-color: #333; /* Dark Gray */
+    --table-header-color: #2980b9; /* Darker Blue for table header */
+    --border-color: #ddd; /* Border color */
+}
+
 body {
-    font-family: Arial, sans-serif; /* Set font for the body */
-    margin: 20px; /* Add margin around the body */
+    font-family: 'Arial', sans-serif; /* Font style */
+    background-color: var(--background-color); /* Background color */
+    color: var(--text-color); /* Text color */
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
 }
 
-h1 {
-    text-align: center; /* Center align the main heading */
+.container {
+    margin: 20px auto; /* Center container with margin */
+    padding: 20px; /* Inner padding */
+    max-width: 800px; /* Maximum width */
+    background-color: white; /* Container background */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    border-radius: 5px; /* Rounded corners */
 }
 
-.tabs {
-    display: flex; /* Use flexbox for tabs layout */
-    justify-content: center; /* Center tabs horizontally */
-    margin-bottom: 20px; /* Add space below the tabs */
-}
-
-.tablink {
-    padding: 10px 20px; /* Add padding for tab buttons */
-    margin: 0 5px; /* Add margin between tab buttons */
-    cursor: pointer; /* Change cursor to pointer on hover */
-}
-
-.tabcontent {
-    display: none; /* Hide tab contents by default */
-    margin: 20px 0; /* Add vertical margin */
+h2 {
+    text-align: center; /* Center align headings */
+    color: var(--primary-color); /* Heading color */
 }
 
 table {
-    width: 100%; /* Set table width to 100% */
-    border-collapse: collapse; /* Collapse table borders */
-    margin-top: 10px; /* Add space above the table */
+    width: 100%; /* Full width for tables */
+    border-collapse: collapse; /* Collapse borders */
+    margin-bottom: 20px; /* Bottom margin */
 }
 
 th, td {
-    padding: 10px; /* Add padding to table cells */
-    border: 1px solid #ddd; /* Add border to cells */
-    text-align: left; /* Align text to the left */
+    border: 1px solid var(--border-color); /* Border for table cells */
+    padding: 12px; /* Padding for table cells */
+    text-align: left; /* Left align text */
 }
 
 th {
-    background-color: #f4f4f4; /* Set background color for header cells */
+    background-color: var(--table-header-color); /* Background for table headers */
+    color: white; /* Text color for headers */
 }
 
-.message {
-    color: red; /* Set text color for messages */
-    text-align: center; /* Center align messages */
-    margin-top: 20px; /* Add space above messages */
+tr:nth-child(even) {
+    background-color: #f2f2f2; /* Light gray for even rows */
+}
+
+tr:hover {
+    background-color: #ddd; /* Darker gray on hover */
+}
+
+button {
+    background-color: var(--primary-color); /* Button background */
+    color: white; /* Button text color */
+    border: none; /* No border */
+    padding: 10px 15px; /* Button padding */
+    border-radius: 5px; /* Rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Transition for hover effect */
+}
+
+button:hover {
+    background-color: var(--secondary-color); /* Change color on hover */
+}
+
+input[type="text"], 
+input[type="email"], 
+select {
+    width: 100%; /* Full width inputs */
+    padding: 10px; /* Input padding */
+    margin: 5px 0 15px; /* Margin for spacing */
+    border: 1px solid #ccc; /* Input border */
+    border-radius: 4px; /* Rounded corners */
+    box-sizing: border-box; /* Prevents padding from affecting width */
+}
+
+.center {
+    text-align: center; /* Center text */
+}
+
+@media (max-width: 600px) {
+    table, 
+    th, 
+    td {
+        font-size: 14px; /* Smaller font size on smaller screens */
+    }
+
+    button {
+        width: 100%; /* Full-width buttons on small screens */
+    }
 }
