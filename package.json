@@ -1,10 +1,11 @@
 {
   "name": "clientmanagementwebapp",
   "version": "1.0.0",
-  "description": "",
+  "description": "This application is designed for managing clients and their associated contacts. It allows users to add, view, and unlink clients and contacts through a user-friendly interface.",
   "main": "script.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -15,5 +16,6 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "mongodb": "^6.10.0"
-  }
+  },
+  "devDependencies": {}
 }
