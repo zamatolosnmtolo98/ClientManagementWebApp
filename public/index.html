@@ -1,28 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Management App</title>
-    <style>
-        /* Simple CSS for layout and tab styles */
-        .tab { cursor: pointer; padding: 10px; margin-right: 5px; }
-        .tabcontent { display: none; padding: 20px; border: 1px solid #ccc; }
-        .center { text-align: center; }
-    </style>
+    <meta charset="UTF-8"> <!-- Character encoding for the document -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Responsive design -->
+    <title>Client Management System</title> <!-- Title of the page -->
+    <link rel="stylesheet" href="styles.css"> <!-- Link to CSS styles -->
 </head>
 <body>
-    <h1>Client Management</h1>
-    <div>
-        <button class="tab" onclick="openTab('clientsTab')">Clients</button>
-        <button class="tab" onclick="openTab('contactsTab')">Contacts</button>
+    <h1>Client Management System</h1> <!-- Main heading -->
+    <div class="tabs"> <!-- Container for tabs -->
+        <button class="tablink" onclick="openTab('Clients')">Clients</button> <!-- Tab for Clients -->
+        <button class="tablink" onclick="openTab('Contacts')">Contacts</button> <!-- Tab for Contacts -->
     </div>
 
-    <div id="clientsTab" class="tabcontent">
-        <h2>Manage Clients</h2>
-        <input type="text" id="clientNameInput" placeholder="Client Name" required>
-        <button id="addClientButton">Add Client</button>
-        <table id="clientTable">
+    <div id="Clients" class="tabcontent"> <!-- Content for Clients tab -->
+        <h2>Add Client</h2> <!-- Subheading for adding clients -->
+        <input type="text" id="clientNameInput" placeholder="Enter client name"> <!-- Input for client name -->
+        <button onclick="addClient()">Add Client</button> <!-- Button to add client -->
+        <table id="clientTable"> <!-- Table to display clients -->
             <tr>
                 <th>Client Name</th>
                 <th>Linked Contacts</th>
@@ -30,13 +25,13 @@
         </table>
     </div>
 
-    <div id="contactsTab" class="tabcontent">
-        <h2>Manage Contacts</h2>
-        <input type="text" id="contactNameInput" placeholder="Contact Full Name" required>
-        <input type="email" id="contactEmailInput" placeholder="Contact Email" required>
-        <select id="clientSelector"></select>
-        <button id="addContactButton">Add Contact</button>
-        <table id="contactTable">
+    <div id="Contacts" class="tabcontent"> <!-- Content for Contacts tab -->
+        <h2>Add Contact</h2> <!-- Subheading for adding contacts -->
+        <input type="text" id="contactNameInput" placeholder="Enter contact name"> <!-- Input for contact name -->
+        <input type="email" id="contactEmailInput" placeholder="Enter contact email"> <!-- Input for contact email -->
+        <select id="clientSelector"></select> <!-- Dropdown for selecting a client -->
+        <button onclick="addContact()">Add Contact</button> <!-- Button to add contact -->
+        <table id="contactTable"> <!-- Table to display contacts -->
             <tr>
                 <th>Contact Name</th>
                 <th>Email</th>
@@ -46,110 +41,7 @@
         </table>
     </div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // Add event listeners for buttons
-            document.getElementById("addClientButton").addEventListener("click", addClient);
-            document.getElementById("addContactButton").addEventListener("click", addContact);
-
-            // Initialize by showing the clients tab
-            openTab('clientsTab');
-        });
-
-        async function renderClients() {
-            const clientTable = document.getElementById('clientTable');
-            const clientSelector = document.getElementById('clientSelector');
-
-            try {
-                const response = await fetch('/api/clients');
-                const clients = await response.json();
-
-                clientTable.innerHTML = '<tr><th>Client Name</th><th>Linked Contacts</th></tr>';
-                clientSelector.innerHTML = '';
-
-                if (clients.length === 0) {
-                    clientTable.innerHTML += '<tr><td colspan="2" class="center">No clients found</td></tr>';
-                } else {
-                    clients.forEach(client => {
-                        const row = `<tr><td>${client.name}</td><td>${client.linkedContacts || 0}</td></tr>`;
-                        clientTable.innerHTML += row;
-
-                        const option = document.createElement('option');
-                        option.value = client.name;
-                        option.textContent = client.name;
-                        clientSelector.appendChild(option);
-                    });
-                }
-            } catch (error) {
-                console.error("Error loading clients:", error);
-            }
-        }
-
-        async function renderContacts() {
-            const contactTable = document.getElementById('contactTable');
-
-            try {
-                const response = await fetch('/api/contacts');
-                const contacts = await response.json();
-
-                contactTable.innerHTML = '<tr><th>Contact Name</th><th>Email</th><th>Client Name</th><th>Action</th></tr>';
-
-                if (contacts.length === 0) {
-                    contactTable.innerHTML += '<tr><td colspan="4" class="center">No contacts found</td></tr>';
-                } else {
-                    contacts.forEach(contact => {
-                        const row = `<tr><td>${contact.fullName}</td><td>${contact.email}</td><td>${contact.client.name}</td><td><button onclick="unlinkContact('${contact._id}')">Unlink</button></td></tr>`;
-                        contactTable.innerHTML += row;
-                    });
-                }
-            } catch (error) {
-                console.error("Error loading contacts:", error);
-            }
-        }
-
-        async function addClient() {
-            const name = document.getElementById('clientNameInput').value;
-            if (!name) return alert("Client name is required");
-
-            await fetch('/api/clients', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name })
-            });
-            renderClients();
-            document.getElementById('clientNameInput').value = ''; // Clear input field
-        }
-
-        async function addContact() {
-            const fullName = document.getElementById('contactNameInput').value;
-            const email = document.getElementById('contactEmailInput').value;
-            const clientName = document.getElementById('clientSelector').value;
-            if (!fullName || !email || !clientName) return alert("All fields are required");
-
-            await fetch('/api/contacts', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ fullName, email, clientName })
-            });
-            renderContacts();
-            document.getElementById('contactNameInput').value = ''; // Clear input field
-            document.getElementById('contactEmailInput').value = ''; // Clear input field
-        }
-
-        async function unlinkContact(contactId) {
-            await fetch(`/api/contacts/${contactId}`, { method: 'DELETE' });
-            renderContacts();
-        }
-
-        function openTab(tabName) {
-            document.querySelectorAll('.tabcontent').forEach(content => content.style.display = 'none');
-            document.getElementById(tabName).style.display = 'block';
-            if (tabName === 'clientsTab') {
-                renderClients();
-            } else {
-                renderContacts();
-            }
-        }
-    </script>
+    <div class="message" id="message"></div> <!-- Div for displaying messages -->
+    <script src="app.js"></script> <!-- Link to JavaScript file -->
 </body>
 </html>

@@ -1,69 +1,47 @@
 body {
-    font-family: Arial, sans-serif; /* Set the font for the page */
-    margin: 20px; /* Add margin around the page */
+    font-family: Arial, sans-serif; /* Set font for the body */
+    margin: 20px; /* Add margin around the body */
 }
 
 h1 {
-    color: #333; /* Set color for the main heading */
+    text-align: center; /* Center align the main heading */
 }
 
 .tabs {
     display: flex; /* Use flexbox for tabs layout */
-    margin-bottom: 20px; /* Add margin below the tabs */
+    justify-content: center; /* Center tabs horizontally */
+    margin-bottom: 20px; /* Add space below the tabs */
 }
 
 .tablink {
     padding: 10px 20px; /* Add padding for tab buttons */
-    background-color: #f1f1f1; /* Set background color for tab buttons */
-    border: none; /* Remove borders */
-    cursor: pointer; /* Change cursor to pointer */
-}
-
-.tablink:hover {
-    background-color: #ddd; /* Change background color on hover */
+    margin: 0 5px; /* Add margin between tab buttons */
+    cursor: pointer; /* Change cursor to pointer on hover */
 }
 
 .tabcontent {
-    display: none; /* Hide tab content by default */
-}
-
-input[type="text"],
-input[type="email"],
-select {
-    width: 100%; /* Set full width for input and select elements */
-    padding: 10px; /* Add padding */
-    margin: 5px 0; /* Add margin */
-    border: 1px solid #ccc; /* Add border */
-    border-radius: 5px; /* Round the corners */
-}
-
-button {
-    padding: 10px 15px; /* Add padding for buttons */
-    background-color: #28a745; /* Set background color for buttons */
-    color: white; /* Set text color for buttons */
-    border: none; /* Remove border */
-    border-radius: 5px; /* Round the corners */
-    cursor: pointer; /* Change cursor to pointer */
-}
-
-button:hover {
-    background-color: #218838; /* Change background color on hover */
+    display: none; /* Hide tab contents by default */
+    margin: 20px 0; /* Add vertical margin */
 }
 
 table {
-    width: 100%; /* Set full width for tables */
-    border-collapse: collapse; /* Merge table borders */
-    margin-top: 20px; /* Add margin above the table */
+    width: 100%; /* Set table width to 100% */
+    border-collapse: collapse; /* Collapse table borders */
+    margin-top: 10px; /* Add space above the table */
 }
 
 th, td {
-    padding: 10px; /* Add padding for table cells */
+    padding: 10px; /* Add padding to table cells */
+    border: 1px solid #ddd; /* Add border to cells */
     text-align: left; /* Align text to the left */
-    border-bottom: 1px solid #ccc; /* Add bottom border for cells */
+}
+
+th {
+    background-color: #f4f4f4; /* Set background color for header cells */
 }
 
 .message {
-    color: #dc3545; /* Set color for error messages */
-    margin-top: 10px; /* Add margin above the message */
-    display: none; /* Hide message by default */
+    color: red; /* Set text color for messages */
+    text-align: center; /* Center align messages */
+    margin-top: 20px; /* Add space above messages */
 }
