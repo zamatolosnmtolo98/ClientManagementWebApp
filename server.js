@@ -1,75 +1,63 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const path = require('path');
+const express = require('express'); // Import express for server creation
+const bodyParser = require('body-parser'); // Import body-parser to parse request bodies
+const clientManagement = require('./app'); // Import the client management logic
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const app = express(); // Create an express app
+app.use(bodyParser.json()); // Middleware to parse JSON bodies
+app.use(express.static('public')); // Serve static files from the 'public' directory
 
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public')));
+// Client Routes
 
-// In-memory data storage
-let clients = [];
-let contacts = [];
-
-// Client class
-class Client {
-    constructor(name) {
-        this.name = name;
-        this.linkedContacts = 0;
-        this.code = this.generateClientCode();
-    }
-
-    generateClientCode() {
-        const prefix = this.name.substring(0, 3).toUpperCase();
-        const suffix = String(clients.filter(c => c.code.startsWith(prefix)).length + 1).padStart(3, '0');
-        return `${prefix}${suffix}`;
-    }
-}
-
-// Contact class
-class Contact {
-    constructor(fullName, email, clientName) {
-        this.fullName = fullName;
-        this.email = email;
-        this.clientName = clientName;
-    }
-}
-
-// Client routes
-app.post('/api/clients', (req, res) => {
-    const { name } = req.body;
-    const client = new Client(name);
-    clients.push(client);
-    res.status(201).json(client);
-});
-
+// GET endpoint to retrieve all clients
 app.get('/api/clients', (req, res) => {
-    res.json(clients);
-});
-
-// Contact routes
-app.post('/api/contacts', (req, res) => {
-    const { fullName, email, clientName } = req.body;
-    const contact = new Contact(fullName, email, clientName);
-    contacts.push(contact);
-
-    // Increment linked contacts count in the client
-    const client = clients.find(c => c.name === clientName);
-    if (client) {
-        client.linkedContacts++;
+    const clients = clientManagement.getAllClients(); // Get all clients
+    if (clients.length === 0) {
+        return res.status(404).json({ message: "No clients found." }); // Handle no clients found
     }
-    res.status(201).json(contact);
+    res.json(clients); // Return clients in JSON format
 });
 
+// POST endpoint to add a new client
+app.post('/api/clients', (req, res) => {
+    const { name, clientCode } = req.body; // Destructure the request body
+    const client = clientManagement.addClient(name, clientCode); // Add the client
+    res.status(201).json(client); // Respond with the created client
+});
+
+// Contact Routes
+
+// GET endpoint to retrieve all contacts
 app.get('/api/contacts', (req, res) => {
-    res.json(contacts);
+    const contacts = clientManagement.getAllContacts(); // Get all contacts
+    if (contacts.length === 0) {
+        return res.status(404).json({ message: "No contacts found." }); // Handle no contacts found
+    }
+    res.json(contacts); // Return contacts in JSON format
+});
+
+// POST endpoint to add a new contact
+app.post('/api/contacts', (req, res) => {
+    const { fullName, email } = req.body; // Destructure the request body
+    const contact = clientManagement.addContact(fullName, email); // Add the contact
+    res.status(201).json(contact); // Respond with the created contact
+});
+
+// POST endpoint to link a contact to a client
+app.post('/api/clients/:clientCode/contacts', (req, res) => {
+    const { clientCode } = req.params; // Get client code from route parameters
+    const { fullName, email } = req.body; // Destructure the request body
+    const contact = clientManagement.addContact(fullName, email); // Add the contact
+    clientManagement.linkContactToClient(clientCode, contact); // Link the contact to the client
+    res.status(200).json(contact); // Respond with the linked contact
+});
+
+// DELETE endpoint to unlink a contact from a client
+app.delete('/api/contacts/:clientCode/:fullName', (req, res) => {
+    const { clientCode, fullName } = req.params; // Get parameters from route
+    clientManagement.unlinkContact(clientCode, fullName); // Unlink the contact
+    res.status(204).send(); // Respond with no content
 });
 
 // Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+const PORT = 3000; // Define the port to listen on
+app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`)); // Log server start

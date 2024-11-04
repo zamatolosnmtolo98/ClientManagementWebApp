@@ -1,130 +1,71 @@
-// app.js
-
-// Client and Contact classes to manage the data
+// Class representing a client
 class Client {
-    constructor(name) {
-        this.name = name;
+    constructor(name, clientCode) {
+        this.name = name; // Name of the client
+        this.clientCode = clientCode; // Unique client code
+        this.linkedContacts = []; // Array to store linked contacts
     }
 }
 
+// Class representing a contact
 class Contact {
-    constructor(name) {
-        this.name = name;
+    constructor(fullName, email) {
+        this.fullName = fullName; // Full name of the contact
+        this.email = email; // Email address of the contact
     }
 }
 
-// Client Controller to handle client operations
-class ClientController {
+// Class to manage clients and contacts
+class ClientManagement {
     constructor() {
-        this.clients = [];
+        this.clients = []; // Array to store clients
+        this.contacts = []; // Array to store contacts
     }
 
-    addClient(name) {
-        const client = new Client(name);
-        this.clients.push(client);
-        return this.clients;
+    // Method to add a new client
+    addClient(name, clientCode) {
+        const newClient = new Client(name, clientCode);
+        this.clients.push(newClient); // Add new client to the array
+        return newClient; // Return the newly created client
     }
 
-    getAllClients() {
-        return this.clients;
-    }
-}
-
-// Contact Controller to handle contact operations
-class ContactController {
-    constructor() {
-        this.contacts = [];
+    // Method to add a new contact
+    addContact(fullName, email) {
+        const newContact = new Contact(fullName, email);
+        this.contacts.push(newContact); // Add new contact to the array
+        return newContact; // Return the newly created contact
     }
 
-    addContact(name) {
-        const contact = new Contact(name);
-        this.contacts.push(contact);
-        return this.contacts;
-    }
-
-    getAllContacts() {
-        return this.contacts;
-    }
-
-    unlinkContact(index) {
-        if (index > -1 && index < this.contacts.length) {
-            this.contacts.splice(index, 1);
-            return this.contacts;
+    // Method to link a contact to a client
+    linkContactToClient(clientCode, contact) {
+        const client = this.clients.find(c => c.clientCode === clientCode); // Find the client by client code
+        if (client) {
+            client.linkedContacts.push(contact); // Link the contact to the client
         }
-        return null; // Return null if the index is out of bounds
+    }
+
+    // Method to get all clients sorted by name
+    getAllClients() {
+        return this.clients.sort((a, b) => a.name.localeCompare(b.name)); // Return sorted clients
+    }
+
+    // Method to get all contacts sorted by full name
+    getAllContacts() {
+        return this.contacts.sort((a, b) => a.fullName.localeCompare(b.fullName)); // Return sorted contacts
+    }
+
+    // Method to unlink a contact from a client
+    unlinkContact(clientCode, contactFullName) {
+        const client = this.clients.find(c => c.clientCode === clientCode); // Find the client by client code
+        if (client) {
+            // Filter out the contact that matches the full name
+            client.linkedContacts = client.linkedContacts.filter(contact => contact.fullName !== contactFullName);
+        }
     }
 }
 
-// Initialize Controllers
-const clientController = new ClientController();
-const contactController = new ContactController();
+// Create an instance of the ClientManagement class
+const clientManagement = new ClientManagement();
 
-// DOM Elements
-const clientForm = document.getElementById('clientForm');
-const contactForm = document.getElementById('contactForm');
-const clientList = document.getElementById('clientList');
-const contactList = document.getElementById('contactList');
-
-// Update Client List
-function updateClientList() {
-    clientList.innerHTML = '';
-    const clients = clientController.getAllClients();
-    if (clients.length === 0) {
-        clientList.innerHTML = '<p>No clients found.</p>';
-    } else {
-        clients.forEach((client, index) => {
-            clientList.innerHTML += `<p>${client.name} <button onclick="unlinkClient(${index})">Remove</button></p>`;
-        });
-    }
-}
-
-// Update Contact List
-function updateContactList() {
-    contactList.innerHTML = '';
-    const contacts = contactController.getAllContacts();
-    if (contacts.length === 0) {
-        contactList.innerHTML = '<p>No contacts found.</p>';
-    } else {
-        contacts.forEach((contact, index) => {
-            contactList.innerHTML += `<p>${contact.name} <button onclick="unlinkContact(${index})">Remove</button></p>`;
-        });
-    }
-}
-
-// Handle Client Form Submission
-clientForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const clientName = document.getElementById('clientName').value;
-    if (clientName) {
-        clientController.addClient(clientName);
-        updateClientList();
-        clientForm.reset();
-    }
-});
-
-// Handle Contact Form Submission
-contactForm.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const contactName = document.getElementById('contactName').value;
-    if (contactName) {
-        contactController.addContact(contactName);
-        updateContactList();
-        contactForm.reset();
-    }
-});
-
-// Unlink Client
-function unlinkClient(index) {
-    clientController.clients.splice(index, 1);
-    updateClientList();
-}
-
-// Unlink Contact
-function unlinkContact(index) {
-    contactController.unlinkContact(index);
-    updateContactList();
-}
-
-// Initial load
-updateClientList();
-updateContactList();
+// Export the client management instance for use in the server
+module.exports = clientManagement;

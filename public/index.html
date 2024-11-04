@@ -3,37 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Client Management App</title>
+    <title>Client Management System</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
 </head>
 <body>
-    <div class="container">
-        <h1>Client Management App</h1>
-        
-        <div class="tabs">
-            <button class="tablinks" onclick="openTab(event, 'Clients')">Clients</button>
-            <button class="tablinks" onclick="openTab(event, 'Contacts')">Contacts</button>
-        </div>
+    <h1>Client Management System</h1>
 
-        <div id="Clients" class="tabcontent active">
-            <h2>Clients</h2>
-            <form id="clientForm">
-                <input type="text" id="clientName" placeholder="Enter Client Name" required>
-                <button type="submit">Add Client</button>
-            </form>
-            <div id="clientList" class="list"></div>
-        </div>
-
-        <div id="Contacts" class="tabcontent">
-            <h2>Contacts</h2>
-            <form id="contactForm">
-                <input type="text" id="contactName" placeholder="Enter Contact Name" required>
-                <button type="submit">Add Contact</button>
-            </form>
-            <div id="contactList" class="list"></div>
-        </div>
+    <!-- Tabs for navigating between sections -->
+    <div class="tabs">
+        <button class="tablink" onclick="openTab(event, 'Clients')">Clients</button>
+        <button class="tablink" onclick="openTab(event, 'Contacts')">Contacts</button>
     </div>
 
-    <script src="app.js"></script>
+    <!-- Clients Tab Content -->
+    <div id="Clients" class="tabcontent">
+        <h2>Clients</h2>
+        <form id="clientForm">
+            <input type="text" id="clientName" placeholder="Client Name" required>
+            <input type="text" id="clientCode" placeholder="Client Code" required readonly>
+            <button type="submit">Add Client</button>
+        </form>
+        <table id="clientsTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Client Code</th>
+                    <th>No of Linked Contacts</th>
+                </tr>
+            </thead>
+            <tbody id="clientsList"></tbody>
+        </table>
+        <div id="noClientsMessage" class="message"></div>
+    </div>
+
+    <!-- Contacts Tab Content -->
+    <div id="Contacts" class="tabcontent">
+        <h2>Contacts</h2>
+        <form id="contactForm">
+            <input type="text" id="contactFullName" placeholder="Full Name" required>
+            <input type="email" id="contactEmail" placeholder="Email" required>
+            <select id="linkClientCode" required>
+                <option value="" disabled selected>Select Client Code</option>
+                <!-- Options will be populated by JavaScript -->
+            </select>
+            <button type="submit">Link Contact</button>
+        </form>
+        <table id="contactsTable">
+            <thead>
+                <tr>
+                    <th>Contact Full Name</th>
+                    <th>Email Address</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="contactsList"></tbody>
+        </table>
+        <div id="noContactsMessage" class="message"></div>
+    </div>
+
+    <script>
+        // Function to open the specified tab
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none"; // Hide all tab content
+            }
+            tablinks = document.getElementsByClassName("tablink");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", ""); // Remove active class
+            }
+            document.getElementById(tabName).style.display = "block"; // Show the selected tab
+            evt.currentTarget.className += " active"; // Add active class to the clicked tab
+        }
+
+        // Function to display clients in the table
+        function displayClients(clients) {
+            const clientsList = document.getElementById('clientsList');
+            clientsList.innerHTML = ''; // Clear existing content
+            clients.forEach(client => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${client.name}</td>
+                                 <td>${client.clientCode}</td>
+                                 <td>${client.linkedContacts.length}</td>`;
+                clientsList.appendChild(row); // Append the row to the table
+            });
+            document.getElementById('noClientsMessage').style.display = clients.length ? 'none' : 'block'; // Toggle no clients message
+        }
+
+        // Function to display contacts in the table
+        function displayContacts(contacts) {
+            const contactsList = document.getElementById('contactsList');
+            contactsList.innerHTML = ''; // Clear existing content
+            contacts.forEach(contact => {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${contact.fullName}</td>
+                                 <td>${contact.email}</td>
+                                 <td><button onclick="unlinkContact('${contact.fullName}')">Unlink</button></td>`;
+                contactsList.appendChild(row); // Append the row to the table
+            });
+            document.getElementById('noContactsMessage').style.display = contacts.length ? 'none' : 'block'; // Toggle no contacts message
+        }
+
+        // Function to fetch and display clients
+        async function fetchClients() {
+            const response = await fetch('/api/clients'); // Fetch clients from the server
+            const clients = await response.json(); // Parse JSON response
+            displayClients(clients); // Display clients
+            populateClientOptions(clients); // Populate client options for linking contacts
+        }
+
+        // Function to populate client options in the contact form
+        function populateClientOptions(clients) {
+            const linkClientCode = document.getElementById('linkClientCode');
+            linkClientCode.innerHTML = '<option value="" disabled selected>Select Client Code</option>'; // Reset options
+            clients.forEach(client => {
+                const option = document.createElement('option');
+                option.value = client.clientCode; // Set option value to client code
+                option.textContent = client.clientCode; // Set option text to client code
+                linkClientCode.appendChild(option); // Append the option to the select
+            });
+        }
+
+        // Function to fetch and display contacts
+        async function fetchContacts() {
+            const response = await fetch('/api/contacts'); // Fetch contacts from the server
+            const contacts = await response.json(); // Parse JSON response
+            displayContacts(contacts); // Display contacts
+        }
+
+        // Add event listener for the client form submission
+        document.getElementById('clientForm').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent page reload
+            const clientName = document.getElementById('clientName').value; // Get client name
+            const clientCode = 'CL' + Date.now(); // Generate a unique client code
+            const response = await fetch('/api/clients', {
+                method: 'POST', // Specify POST method
+                headers: { 'Content-Type': 'application/json' }, // Set content type
+                body: JSON.stringify({ name: clientName, clientCode }) // Send client data
+            });
+            await fetchClients(); // Refresh clients list
+            document.getElementById('clientForm').reset(); // Reset the form
+        });
+
+        // Add event listener for the contact form submission
+        document.getElementById('contactForm').addEventListener('submit', async (event) => {
+            event.preventDefault(); // Prevent page reload
+            const contactFullName = document.getElementById('contactFullName').value; // Get contact full name
+            const contactEmail = document.getElementById('contactEmail').value; // Get contact email
+            const clientCode = document.getElementById('linkClientCode').value; // Get selected client code
+            const response = await fetch(`/api/clients/${clientCode}/contacts`, {
+                method: 'POST', // Specify POST method
+                headers: { 'Content-Type': 'application/json' }, // Set content type
+                body: JSON.stringify({ fullName: contactFullName, email: contactEmail }) // Send contact data
+            });
+            await fetchContacts(); // Refresh contacts list
+            document.getElementById('contactForm').reset(); // Reset the form
+        });
+
+        // Function to unlink a contact
+        async function unlinkContact(contactFullName) {
+            const clientCode = document.getElementById('linkClientCode').value; // Get selected client code
+            await fetch(`/api/contacts/${clientCode}/${contactFullName}`, {
+                method: 'DELETE' // Specify DELETE method
+            });
+            await fetchContacts(); // Refresh contacts list
+        }
+
+        // Initialize the application by fetching clients and contacts
+        fetchClients(); // Fetch clients on load
+        fetchContacts(); // Fetch contacts on load
+    </script>
 </body>
 </html>
