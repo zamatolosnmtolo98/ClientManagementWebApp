@@ -15,9 +15,13 @@ mongoose.connect(uri, {
     useUnifiedTopology: true,
 })
 .then(() => console.log('Connected to MongoDB'))
-.catch(error => console.error('Error connecting to MongoDB:', error));
+.catch(error => {
+    console.error('Error connecting to MongoDB:', error);
+    process.exit(1); // Exit the process with failure
+});
 
-app.use(bodyParser.json()); // Middleware to parse JSON requests
+// Middleware to parse JSON requests
+app.use(bodyParser.json()); 
 
 // Set up routes
 app.use("/api/clients", clientRoutes); // Use client routes for client-related requests
@@ -25,6 +29,5 @@ app.use("/api/contacts", contactRoutes); // Use contact routes for contact-relat
 
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`); // Log the server URL
+    console.log(`Server is running on http://localhost:${PORT}`); // Log the server URL
 });
-
