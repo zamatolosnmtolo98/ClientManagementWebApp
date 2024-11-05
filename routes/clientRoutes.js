@@ -1,16 +1,15 @@
-const express = require('express'); // Import express
-const router = express.Router(); // Create a router
-const { v4: uuidv4 } = require('uuid'); // Import UUID for unique ID generation
+const express = require('express');
+const { v4: uuidv4 } = require('uuid'); // Import uuid to generate unique IDs
 
-// Sample in-memory data store for clients (replace with database logic if needed)
-let clients = [];
+const router = express.Router();
+let clients = []; // Initialize an empty array to store clients
 
-// Get all clients
+// GET route to return the list of clients
 router.get('/', (req, res) => {
-    res.json(clients); // Return the list of clients
+    res.status(200).json(clients); // Respond with the list of clients
 });
 
-// Add a new client
+// POST route to add a new client
 router.post('/', (req, res) => {
     const { name, code } = req.body; // Extract client details from request body
     if (!name || !code) {
@@ -21,7 +20,7 @@ router.post('/', (req, res) => {
     res.status(201).json(newClient); // Respond with the created client
 });
 
-// Delete a client
+// DELETE route to delete a client by ID
 router.delete('/:id', (req, res) => {
     const id = req.params.id; // Get client ID from request params
     const initialLength = clients.length; // Store initial length of clients array
