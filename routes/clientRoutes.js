@@ -15,6 +15,7 @@ router.post('/', (req, res) => {
     if (!name || !code) {
         return res.status(400).json({ message: 'Name and code are required' }); // Validation check
     }
+    
     const newClient = { id: uuidv4(), name, code, linkedContacts: 0 }; // Create a new client object with a unique ID
     clients.push(newClient); // Add the new client to the store
     res.status(201).json(newClient); // Respond with the created client
@@ -24,6 +25,7 @@ router.post('/', (req, res) => {
 router.delete('/:id', (req, res) => {
     const id = req.params.id; // Get client ID from request params
     const initialLength = clients.length; // Store initial length of clients array
+    
     clients = clients.filter(client => client.id !== id); // Remove client from the store
     if (clients.length < initialLength) {
         return res.status(204).send(); // Respond with no content status if deletion was successful
